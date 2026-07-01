@@ -500,10 +500,11 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .empty-icon{font-size:40px;opacity:.3}
 .empty-title{font-size:14px;font-weight:500;color:var(--text-secondary)}
 
-::-webkit-scrollbar{width:5px;height:5px}
+*{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.28) transparent}
+::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2)}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.28);border-radius:6px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.45);background-clip:padding-box}
 input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4);cursor:pointer}
 /* Indication visuelle weekend interdit */
 input[type="date"].weekend-error{border-color:var(--red)!important;box-shadow:0 0 0 2px var(--red-bg)}
