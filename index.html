@@ -207,6 +207,10 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .mj-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
 .mj-btn.mj-active{background:rgba(79,142,247,.2);border-color:var(--accent);color:var(--accent)}
 .done-toggle{padding:6px 0 8px;display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text-secondary);font-size:12.5px;font-weight:500;user-select:none}
+.month-cat-hdr{display:flex;align-items:center;gap:8px;padding:14px 0 6px;font-size:12.5px;font-weight:600;color:var(--text-primary);border-top:1px solid var(--border)}
+.month-cat-hdr:first-child{border-top:none;padding-top:2px}
+.month-cat-hdr .mch-icon{font-size:15px}
+.month-cat-hdr .mch-count{margin-left:auto;background:var(--surface3);color:var(--text-secondary);font-size:10px;font-weight:600;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px}
 .done-toggle:hover{color:var(--text-primary)}
 .myjour-tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--accent);background:var(--accent-glow);border-radius:3px;padding:1px 5px;font-weight:500;margin-left:5px}
 
@@ -286,35 +290,6 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .plan-nav-btn{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:5px 12px;font-size:12px;color:var(--text-secondary);cursor:pointer;font-family:inherit;transition:background .12s}
 .plan-nav-btn:hover{background:var(--surface3);color:var(--text-primary)}
 .plan-range{font-size:13px;color:var(--text-primary);font-weight:500;flex:1}
-
-/* ── VUE MENSUELLE ── */
-.month-wrap{flex:1;overflow:auto;padding:8px 22px 20px;display:flex;flex-direction:column;min-height:0}
-.month-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:6px;flex-shrink:0}
-.month-weekdays div{font-size:10.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;text-align:center;padding:2px 0}
-.month-grid{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;gap:8px;flex:1;min-height:0}
-.month-cell{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;min-height:92px;overflow:hidden;transition:background .1s}
-.month-cell.out-month{opacity:.38}
-.month-cell.today{border-color:var(--accent)}
-.month-cell.drag-over{background:rgba(79,142,247,.1);outline:2px dashed rgba(79,142,247,.45);outline-offset:-3px}
-.month-cell-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 2px;flex-shrink:0}
-.month-cell-num{font-size:12px;font-weight:600;color:var(--text-secondary);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.month-cell-num.today{color:#fff;background:var(--accent)}
-.month-cell-count{font-size:9.5px;font-weight:600;color:var(--text-muted);background:var(--surface3);padding:1px 5px;border-radius:8px}
-.month-cell-body{flex:1;overflow-y:auto;padding:1px 6px 6px;display:flex;flex-direction:column;gap:2px}
-.month-chip{font-size:10px;line-height:1.4;padding:2px 5px;border-radius:4px;background:var(--surface3);color:var(--text-secondary);border-left:2px solid var(--text-muted);cursor:grab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;user-select:none;transition:background .1s}
-.month-chip:hover{background:rgba(255,255,255,.07);color:var(--text-primary)}
-.month-chip:active{cursor:grabbing}
-.month-chip.dragging{opacity:.3}
-.month-chip.mp-critique{border-left-color:var(--red)}
-.month-chip.mp-haute{border-left-color:var(--orange)}
-.month-chip.mp-moyenne{border-left-color:var(--accent)}
-.month-chip.mp-faible{border-left-color:var(--green)}
-.month-chip.done{opacity:.4;text-decoration:line-through}
-@media(max-width:700px){
-  .month-weekdays div{font-size:9px}
-  .month-cell{min-height:64px}
-  .month-chip{font-size:9px}
-}
 
 /* ── KANBAN ── */
 .kanban-wrap{flex:1;overflow-x:auto;overflow-y:hidden;padding:12px 22px 20px}
@@ -1833,52 +1808,40 @@ function kbDrop(e,status){
   showToast(`📌 ${t.title} → ${{todo:'À faire',inprogress:'En cours',done:'Terminé'}[status]}`);
 }
 
-// ── VUE MENSUELLE ──
+// ── VUE MENSUELLE (groupée par catégorie) ──
 let monthOffset=0;
-let monthDragId=null;
 function renderMonthView(el){
   const base=new Date(TODAY.getFullYear(),TODAY.getMonth()+monthOffset,1);
   const year=base.getFullYear(),month=base.getMonth();
   let monthLabel=base.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
   monthLabel=monthLabel.charAt(0).toUpperCase()+monthLabel.slice(1);
-  const firstDow=(new Date(year,month,1).getDay()+6)%7; // 0=lundi
+  const monthStart=year+'-'+String(month+1).padStart(2,'0')+'-01';
   const daysInMonth=new Date(year,month+1,0).getDate();
-  const daysInPrevMonth=new Date(year,month,0).getDate();
-  const totalCells=Math.ceil((firstDow+daysInMonth)/7)*7;
+  const monthEnd=year+'-'+String(month+1).padStart(2,'0')+'-'+String(daysInMonth).padStart(2,'0');
 
-  let cellsHTML='';
-  for(let i=0;i<totalCells;i++){
-    const dayNum=i-firstDow+1;
-    let cellDate,inMonth;
-    if(dayNum<1){ cellDate=new Date(year,month-1,daysInPrevMonth+dayNum); inMonth=false; }
-    else if(dayNum>daysInMonth){ cellDate=new Date(year,month+1,dayNum-daysInMonth); inMonth=false; }
-    else{ cellDate=new Date(year,month,dayNum); inMonth=true; }
-    cellDate.setHours(12,0,0,0);
-    const ds=cellDate.getFullYear()+'-'+String(cellDate.getMonth()+1).padStart(2,'0')+'-'+String(cellDate.getDate()).padStart(2,'0');
-    const isToday=ds===todayStr();
-    let dayTasks=tasks.filter(t=>t.due===ds);
-    if(prioFilter!=='all')dayTasks=dayTasks.filter(t=>t.prio===prioFilter);
-    dayTasks=[...dayTasks.filter(t=>t.status!=='done').sort((a,b)=>calcScore(b)-calcScore(a)),...dayTasks.filter(t=>t.status==='done')];
-    const chips=dayTasks.map(t=>`<div class="month-chip mp-${t.prio} ${t.status==='done'?'done':''}"
-      draggable="true" data-tid="${t.id}"
-      ondragstart="monthDragStart(event,this.dataset.tid)" ondragend="monthDragEnd(event)"
-      onclick="event.stopPropagation();selectTask(this.dataset.tid)"
-      title="${esc(t.title)} — ${esc(t.cat)}">${catIcon(t.cat)} ${esc(t.title)}</div>`).join('');
-    cellsHTML+=`<div class="month-cell ${inMonth?'':'out-month'} ${isToday?'today':''}"
-      ondragover="monthDragOver(event)" ondragleave="monthDragLeave(event)" ondrop="monthDrop(event,'${ds}')">
-      <div class="month-cell-hdr">
-        <span class="month-cell-num ${isToday?'today':''}">${cellDate.getDate()}</span>
-        ${dayTasks.length?`<span class="month-cell-count">${dayTasks.length}</span>`:''}
+  let monthTasks=tasks.filter(t=>t.due>=monthStart&&t.due<=monthEnd);
+  if(prioFilter!=='all')monthTasks=monthTasks.filter(t=>t.prio===prioFilter);
+
+  const sections=cats.map(c=>{
+    let ct=monthTasks.filter(t=>t.cat===c.name);
+    if(!ct.length)return '';
+    const openT=ct.filter(t=>t.status!=='done').sort((a,b)=>a.due.localeCompare(b.due)||calcScore(b)-calcScore(a));
+    const doneT=showDone?ct.filter(t=>t.status==='done').sort((a,b)=>a.due.localeCompare(b.due)):[];
+    return`<div class="month-cat-hdr">
+        <span class="mch-icon">${c.icon}</span><span>${esc(c.name)}</span>
+        <span class="mch-count">${openT.length}</span>
       </div>
-      <div class="month-cell-body">${chips}</div>
-    </div>`;
-  }
+      ${[...openT,...doneT].map(t=>taskHTML(t)).join('')}`;
+  }).join('');
+
+  const doneCount=monthTasks.filter(t=>t.status==='done').length;
+  const emptyH=`<div class="empty-state"><div class="empty-icon">📆</div><div class="empty-title">Aucune tâche ce mois-ci</div></div>`;
 
   el.innerHTML=`
     <div class="main-header">
       <div class="main-header-top"><div>
         <div class="main-title">Vue mensuelle</div>
-        <div class="main-subtitle">Glissez une tâche vers un autre jour pour changer son échéance</div>
+        <div class="main-subtitle">Tâches du mois regroupées par catégorie</div>
       </div>
       <div class="main-actions"><button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)">✦</button></div></div>
     </div>
@@ -1887,26 +1850,10 @@ function renderMonthView(el){
       <button class="plan-nav-btn" onclick="monthOffset=0;renderMain()">Aujourd'hui</button>
       <span class="plan-range">${monthLabel}</span>
       ${['all','critique','haute','moyenne','faible'].map(f=>`<button class="filter-chip ${prioFilter===f?'active':''}" onclick="setPF('${f}')">${{all:'Toutes',critique:'Critique',haute:'Haute',moyenne:'Moyenne',faible:'Faible'}[f]}</button>`).join('')}
+      <button class="filter-chip ${showDone?'active':''}" onclick="showDone=!showDone;renderMain()">✓ Terminées${doneCount?' ('+doneCount+')':''}</button>
       <button class="plan-nav-btn" onclick="monthOffset++;renderMain()">Mois suiv. ▶</button>
     </div>
-    <div class="month-wrap">
-      <div class="month-weekdays"><div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div></div>
-      <div class="month-grid">${cellsHTML}</div>
-    </div>`;
-}
-function monthDragStart(e,id){monthDragId=String(id);e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));setTimeout(()=>e.target.classList.add('dragging'),0)}
-function monthDragEnd(e){e.target.classList.remove('dragging');document.querySelectorAll('.month-cell').forEach(c=>c.classList.remove('drag-over'));monthDragId=null}
-function monthDragOver(e){e.preventDefault();e.dataTransfer.dropEffect='move';e.currentTarget.classList.add('drag-over')}
-function monthDragLeave(e){if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove('drag-over')}
-function monthDrop(e,targetDate){
-  e.preventDefault();e.currentTarget.classList.remove('drag-over');
-  const id=monthDragId||e.dataTransfer.getData('text/plain');if(!id)return;
-  const t=tasks.find(x=>String(x.id)===String(id));if(!t)return;
-  if(t.due===targetDate){showToast('📅 Déjà à cette date');return;}
-  t.due=targetDate;
-  save(t);renderMain();updateCounts();
-  showToast('📅 '+esc(t.title)+' → '+fmtFull(targetDate));
-  if(String(selectedId)===String(t.id))openDetail(t.id);
+    <div class="task-scroll">${sections.trim()?sections:emptyH}</div>`;
 }
 
 // ── VUE PAR CATÉGORIE ──
