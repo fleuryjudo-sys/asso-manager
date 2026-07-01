@@ -500,6 +500,8 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .notif-panel-hdr{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
 .notif-panel-title{font-size:14px;font-weight:600;flex:1}
 .notif-panel-close{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:15px;padding:2px;border-radius:3px}
+.notif-panel-clear{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:11px;padding:3px 7px;border-radius:var(--radius);white-space:nowrap;font-family:inherit;transition:background .1s,color .1s}
+.notif-panel-clear:hover{background:var(--surface3);color:var(--red)}
 .notif-panel-close:hover{color:var(--text-primary)}
 .notif-list{flex:1;overflow-y:auto;padding:8px}
 .notif-item{display:flex;gap:10px;padding:9px 10px;border-radius:var(--radius-lg);cursor:pointer;transition:background .1s;margin-bottom:2px}
@@ -1294,6 +1296,7 @@ function toggleNotifPanel(){
     wrap.innerHTML=`<div class="notif-panel">
       <div class="notif-panel-hdr">
         <span class="notif-panel-title">Notifications</span>
+        ${notifications.length?'<button class="notif-panel-clear" onclick="clearAllNotifs()" title="Tout effacer">🗑 Tout effacer</button>':''}
         <button class="notif-panel-close" onclick="toggleNotifPanel()">✕</button>
       </div>
       <div class="notif-list">${notifications.length?notifications.map(n=>`
@@ -1311,8 +1314,25 @@ function toggleNotifPanel(){
   }
 }
 
+async function clearAllNotifs(){
+  if(!confirm('Effacer toutes les notifications pour tout le monde ?'))return;
+  notifications=[];
+  saveNotifs();
+  updateNotifDot();
+  toggleNotifPanel();toggleNotifPanel(); // re-render le panneau vide
+  const sb=getSupabase();
+  if(sb){ try{ await sb.from('notifications').delete().neq('id','00000000-0000-0000-0000-000000000000'); }catch(e){console.error('[Supabase] clearNotifs error:',e);} }
+  showToast('🗑 Notifications effacées');
+}
+
 // ── CHECK ALERTS (called on load) ──
 function checkAlerts(){
+  // Évite de spammer les mêmes alertes à chaque ouverture/rechargement de l'app :
+  // une seule vérification par jour suffit.
+  const todayKey=todayStr();
+  if(localStorage.getItem('raf_last_alert_check')===todayKey) return;
+  localStorage.setItem('raf_last_alert_check', todayKey);
+
   const open=tasks.filter(t=>t.status!=='done');
   const overdue=open.filter(t=>daysLeft(t.due)<0);
   const critical=open.filter(t=>daysLeft(t.due)===0&&t.prio==='critique');
