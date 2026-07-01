@@ -295,27 +295,6 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .plan-nav-btn:hover{background:var(--surface3);color:var(--text-primary)}
 .plan-range{font-size:13px;color:var(--text-primary);font-weight:500;flex:1}
 
-/* ── CALENDRIER D'ÉVÉNEMENTS ── */
-.ev-wrap{flex:1;overflow:auto;padding:8px 22px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;min-height:0}
-.ev-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;flex-shrink:0}
-.ev-weekdays div{font-size:10.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;text-align:center;padding:2px 0}
-.ev-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;flex-shrink:0}
-.ev-cell{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);min-height:56px;padding:6px;cursor:pointer;transition:background .1s,border-color .1s;display:flex;flex-direction:column;gap:4px}
-.ev-cell:hover{background:var(--surface3)}
-.ev-cell.out-month{opacity:.35}
-.ev-cell.today .ev-cell-num{color:#fff;background:var(--accent);border-radius:50%;width:19px;height:19px;display:flex;align-items:center;justify-content:center}
-.ev-cell.selected{border-color:var(--accent);background:var(--sidebar-active)}
-.ev-cell-num{font-size:12px;font-weight:600;color:var(--text-secondary)}
-.ev-cell-dots{display:flex;gap:3px;flex-wrap:wrap}
-.ev-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.ev-day-panel{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;min-height:120px}
-.ev-day-hdr{display:flex;align-items:center;justify-content:space-between;font-size:13.5px;font-weight:600;color:var(--text-primary);margin-bottom:10px;text-transform:capitalize}
-.ev-item{display:flex;gap:10px;align-items:flex-start;padding:9px 6px;border-radius:var(--radius);cursor:pointer;transition:background .1s}
-.ev-item:hover{background:var(--surface3)}
-.ev-item-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.ev-item-title{font-size:13.5px;color:var(--text-primary);font-weight:500}
-.ev-item-meta{font-size:11.5px;color:var(--text-muted);margin-top:2px}
-
 /* ── KANBAN ── */
 .kanban-wrap{flex:1;overflow-x:auto;overflow-y:hidden;padding:12px 22px calc(20px + env(safe-area-inset-bottom))}
 .kanban-grid{display:flex;gap:14px;height:100%;min-width:600px}
@@ -412,9 +391,6 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
   .mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:149}
   .mobile-overlay.open{display:block}
   .ai-page-content{flex-direction:column;overflow-y:auto}
-  .ev-cell{min-height:40px;padding:4px}
-  .ev-weekdays div{font-size:9px}
-  .ev-cell-num{font-size:11px}
   .ai-suggest-panel{width:100%;border-right:none;border-bottom:1px solid var(--border);max-height:240px;flex-shrink:0}
   .ai-chat-wrap{min-height:360px}
 }
@@ -660,9 +636,6 @@ select option{background:#1C2130;color:#EDF0F7}
     <div class="sidebar-item" onclick="setView('bycat',this)">
       <span class="sidebar-icon">🗃</span><span class="sidebar-label">Par catégorie</span>
     </div>
-    <div class="sidebar-item" onclick="setView('events',this)">
-      <span class="sidebar-icon">🎉</span><span class="sidebar-label">Calendrier</span>
-    </div>
     <div class="sidebar-item" onclick="setView('kanban',this)">
       <span class="sidebar-icon">🗂</span><span class="sidebar-label">Kanban Ma journée</span>
     </div>
@@ -768,32 +741,6 @@ select option{background:#1C2130;color:#EDF0F7}
   </div>
 </div>
 
-<!-- MODAL ÉVÉNEMENT -->
-<div class="modal-bg" id="event-modal" style="display:none" onclick="if(event.target===this)closeEventModal()">
-  <div class="modal">
-    <h3 id="event-modal-title">Nouvel événement</h3>
-    <div class="modal-field"><label class="modal-label">Titre</label>
-      <input class="modal-inp" id="event-inp-title" placeholder="Ex: Assemblée générale" maxlength="80"></div>
-    <div class="modal-2col">
-      <div class="modal-field"><label class="modal-label">Date</label>
-        <input class="modal-inp" id="event-inp-date" type="date"></div>
-      <div class="modal-field"><label class="modal-label">Heure (optionnel)</label>
-        <input class="modal-inp" id="event-inp-time" type="time"></div>
-    </div>
-    <div class="modal-field"><label class="modal-label">Lieu</label>
-      <input class="modal-inp" id="event-inp-location" placeholder="Ex: Salle des fêtes" maxlength="80"></div>
-    <div class="modal-field"><label class="modal-label">Catégorie</label>
-      <select class="modal-inp" id="event-inp-cat"></select></div>
-    <div class="modal-field"><label class="modal-label">Description</label>
-      <textarea class="modal-inp" id="event-inp-desc" rows="3" style="resize:vertical" placeholder="Détails, ordre du jour…"></textarea></div>
-    <div class="modal-row">
-      <button class="modal-btn danger" id="event-delete-btn" onclick="deleteEvent()" style="display:none;margin-right:auto">🗑 Supprimer</button>
-      <button class="modal-btn" onclick="closeEventModal()">Annuler</button>
-      <button class="modal-btn primary" onclick="saveEvent()">Enregistrer</button>
-    </div>
-  </div>
-</div>
-
 </div><!-- /#app-root -->
 
 <script>
@@ -861,13 +808,6 @@ const APP_CONFIG = {
   claudeApiKey: '', // Clé retirée du code — gérée via Supabase Edge Function
   claudeProxyUrl: 'https://ebywvmbnhxzqzgqqhxip.supabase.co/functions/v1/claude-proxy',
   useClaudeAI: false, // ← passera à true une fois la fonction claude-proxy recréée sur ce nouveau projet
-  // ── Notifications push ──
-  // Clé publique VAPID (sans danger à exposer côté client). La clé PRIVÉE ne
-  // doit JAMAIS être mise ici : elle reste uniquement dans les secrets de la
-  // fonction Supabase "send-push". Voir le guide de déploiement fourni.
-  vapidPublicKey: 'BPGw7Pu-KR07_Dakl4kV5ff9JkNy6_cCWpAKxKTVhvvZsi18B0ggPqNyaqoMMW6JGTqW1_JJljIqlzms01b_2Dw',
-  pushProxyUrl: 'https://ebywvmbnhxzqzgqqhxip.supabase.co/functions/v1/send-push',
-  usePush: true, // ← passer à false si vous ne voulez pas activer les notifications push
 };
 
 // ── AUTHENTIFICATION (3 membres du bureau) ──
@@ -971,7 +911,6 @@ function enterApp(user){
   document.getElementById('um-role').textContent = user.role;
   const respList = document.getElementById('resp-datalist');
   if(respList) respList.innerHTML = ASSO_USERS.map(u=>`<option value="${esc(u.name)}">`).join('');
-  updateNotifBtnState();
   startApp();
 }
 
@@ -1009,11 +948,6 @@ const DEFAULT_TPLS=[
 ];
 let templates=JSON.parse(localStorage.getItem('raf_tpls')||'null')||DEFAULT_TPLS.map(t=>({...t}));
 let notifications=JSON.parse(localStorage.getItem('raf_notifs')||'[]');
-let events=JSON.parse(localStorage.getItem('raf_events')||'[]');
-function saveEventsLocal(){localStorage.setItem('raf_events',JSON.stringify(events))}
-function mapDbEvent(e){
-  return { id:e.id, title:e.title, date:e.event_date, time:e.event_time||'', location:e.location||'', cat:e.category||'Divers', desc:e.description||'', createdBy:e.created_by||'' };
-}
 
 let currentView='dash';
 let newTaskDue=null; // Date sélectionnée pour la nouvelle tâche
@@ -1044,18 +978,6 @@ function getSupabase(){
   return _sb;
 }
 
-// Convertit une ligne brute de la table "tasks" au format utilisé par l'app
-function mapDbTask(t){
-  return {
-    id: t.id, title: t.title, due: t.due_date||todayStr(),
-    time: parseFloat(t.time_est)||1, cat: t.category||'Divers',
-    prio: t.priority||'moyenne', status: t.status||'todo',
-    resp: t.responsible||'', comments: t.comments||'',
-    starred: t.starred||false, myjour: t.myjour||false,
-    recur: t.recurrence||''
-  };
-}
-
 async function syncAll(){
   let sb;
   try { sb = getSupabase(); }
@@ -1065,7 +987,16 @@ async function syncAll(){
     // Tâches
     const {data:tdata, error:te} = await sb.from('tasks').select('*').order('created_at',{ascending:false});
     if(te) throw te;
-    if(tdata) tasks = tdata.map(mapDbTask);
+    if(tdata) {
+      tasks = tdata.map(t=>({
+        id: t.id, title: t.title, due: t.due_date||todayStr(),
+        time: parseFloat(t.time_est)||1, cat: t.category||'Divers',
+        prio: t.priority||'moyenne', status: t.status||'todo',
+        resp: t.responsible||'', comments: t.comments||'',
+        starred: t.starred||false, myjour: t.myjour||false,
+        recur: t.recurrence||''
+      }));
+    }
     // Catégories
     const {data:cdata} = await sb.from('categories').select('*').order('position');
     if(cdata && cdata.length) cats = cdata.map(c=>({name:c.name, icon:c.icon}));
@@ -1075,12 +1006,6 @@ async function syncAll(){
     // Notifications
     const {data:ndata} = await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(30);
     if(ndata) notifications = ndata.map(n=>({id:n.id,icon:n.icon,title:n.title,sub:n.sub,type:n.type,read:n.read,time:new Date(n.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}));
-    // Événements (table indépendante : ne bloque pas le reste si absente)
-    try {
-      const {data:edata, error:ee} = await sb.from('events').select('*').order('event_date');
-      if(ee) throw ee;
-      if(edata) events = edata.map(mapDbEvent);
-    } catch(evErr){ console.warn('[Supabase] Table "events" indisponible (migration à exécuter ?):', evErr.message||evErr); }
     console.log('[Supabase] Sync OK —', tasks.length, 'tâches');
   } catch(e){
     console.error('[Supabase] Sync error:', e);
@@ -1088,7 +1013,6 @@ async function syncAll(){
   } finally {
     // Toujours afficher l'interface, même si la synchro a échoué
     renderMain(); updateCounts(); renderSidebarCats();
-    subscribeRealtime();
   }
 }
 
@@ -1149,84 +1073,6 @@ async function upsertNotif(n){
   catch(e){}
 }
 
-// ── TEMPS RÉEL (Supabase Realtime) ──
-// Diffuse instantanément les changements faits par un membre du bureau
-// aux autres membres connectés, sans qu'ils aient besoin de revenir sur l'app.
-let _realtimeChannel = null;
-function subscribeRealtime(){
-  const sb = getSupabase();
-  if(!sb || _realtimeChannel) return;
-  try {
-    _realtimeChannel = sb.channel('asso-realtime')
-      .on('postgres_changes', {event:'*', schema:'public', table:'tasks'}, handleRealtimeTask)
-      .on('postgres_changes', {event:'*', schema:'public', table:'events'}, handleRealtimeEvent)
-      .on('postgres_changes', {event:'INSERT', schema:'public', table:'notifications'}, handleRealtimeNotif)
-      .on('postgres_changes', {event:'*', schema:'public', table:'categories'}, ()=>{ syncAll(); })
-      .subscribe(status=>{ console.log('[Realtime] statut:', status); });
-  } catch(e){ console.warn('[Realtime] indisponible:', e); }
-}
-
-function handleRealtimeTask(payload){
-  if(!CURRENT_USER) return;
-  if(payload.eventType==='INSERT'){
-    if(!tasks.some(t=>String(t.id)===String(payload.new.id))) tasks.unshift(mapDbTask(payload.new));
-  } else if(payload.eventType==='UPDATE'){
-    const idx=tasks.findIndex(t=>String(t.id)===String(payload.new.id));
-    if(idx>=0) tasks[idx]=mapDbTask(payload.new); else tasks.unshift(mapDbTask(payload.new));
-  } else if(payload.eventType==='DELETE'){
-    tasks=tasks.filter(t=>String(t.id)!==String(payload.old.id));
-    if(String(selectedId)===String(payload.old.id)){ selectedId=null; closeDetail(); }
-  }
-  localStorage.setItem('raf_v5', JSON.stringify(tasks));
-  renderMain(); updateCounts(); renderSidebarCats();
-}
-
-function handleRealtimeEvent(payload){
-  if(!CURRENT_USER) return;
-  if(payload.eventType==='INSERT'){
-    if(!events.some(e=>String(e.id)===String(payload.new.id))) events.push(mapDbEvent(payload.new));
-  } else if(payload.eventType==='UPDATE'){
-    const idx=events.findIndex(e=>String(e.id)===String(payload.new.id));
-    if(idx>=0) events[idx]=mapDbEvent(payload.new); else events.push(mapDbEvent(payload.new));
-  } else if(payload.eventType==='DELETE'){
-    events=events.filter(e=>String(e.id)!==String(payload.old.id));
-  }
-  saveEventsLocal();
-  if(currentView==='events') renderMain();
-}
-
-function handleRealtimeNotif(payload){
-  if(!CURRENT_USER) return;
-  const n=payload.new;
-  const notif={id:n.id,icon:n.icon,title:n.title,sub:n.sub,type:n.type,read:n.read,time:new Date(n.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})};
-  if(notifications.some(x=>String(x.id)===String(notif.id))) return;
-  notifications.unshift(notif);
-  if(notifications.length>30) notifications=notifications.slice(0,30);
-  saveNotifs();
-  updateNotifDot();
-  showToast(`${notif.icon} ${notif.title}`);
-}
-
-// ── ÉVÉNEMENTS (calendrier de l'association) ──
-async function upsertEvent(e){
-  saveEventsLocal();
-  const sb=getSupabase(); if(!sb) return;
-  try {
-    const payload={ title:e.title, event_date:e.date, event_time:e.time||null, location:e.location||'', category:e.cat||'Divers', description:e.desc||'', created_by:e.createdBy||APP_CONFIG.userName };
-    if(e.id && typeof e.id==='string' && e.id.includes('-')) payload.id=e.id;
-    const {data,error}=await sb.from('events').upsert(payload).select();
-    if(error){ console.error('[Supabase] upsertEvent error:', error); return; }
-    if(data && data[0] && typeof e.id==='number'){
-      const idx=events.findIndex(x=>x.id===e.id);
-      if(idx>=0){ events[idx].id=data[0].id; saveEventsLocal(); }
-    }
-  } catch(err){ console.error('[Supabase] upsertEvent error:', err); }
-}
-async function deleteEventRemote(id){
-  const sb=getSupabase(); if(!sb) return;
-  try { await sb.from('events').delete().eq('id',id); } catch(e){ console.error('[Supabase] deleteEvent error:', e); }
-}
-
 
 function saveCats(){localStorage.setItem('raf_cats',JSON.stringify(cats))}
 function saveTpls(){localStorage.setItem('raf_tpls',JSON.stringify(templates))}
@@ -1279,7 +1125,6 @@ function addNotif(icon,title,sub,type='info'){
   if(notifications.length>30)notifications=notifications.slice(0,30);
   saveNotifs();
   updateNotifDot();
-  sendPushNotification({title:icon+' '+title, body:sub||''});
 }
 function updateNotifDot(){
   const dot=document.getElementById('notif-dot');
@@ -1486,7 +1331,6 @@ function renderMain(){
   if(currentView==='kanban'){renderKanban(el);return}
   if(currentView==='month'){renderMonthView(el);return}
   if(currentView==='bycat'){renderByCategory(el);return}
-  if(currentView==='events'){renderEventsCalendar(el);return}
   if(currentView==='ai'){renderAIPage(el);return}
 
   const isSearch=!!searchQuery;
@@ -2108,137 +1952,6 @@ function renderByCategory(el){
     <div class="kanban-wrap"><div class="kanban-grid">${colsHTML}</div></div>`;
 }
 
-// ── CALENDRIER D'ÉVÉNEMENTS ──
-let eventsMonthOffset=0;
-let selectedEventDay=null;
-function renderEventsCalendar(el){
-  const base=new Date(TODAY.getFullYear(),TODAY.getMonth()+eventsMonthOffset,1);
-  const year=base.getFullYear(),month=base.getMonth();
-  let monthLabel=base.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
-  monthLabel=monthLabel.charAt(0).toUpperCase()+monthLabel.slice(1);
-  const firstDow=(new Date(year,month,1).getDay()+6)%7;
-  const daysInMonth=new Date(year,month+1,0).getDate();
-  const daysInPrevMonth=new Date(year,month,0).getDate();
-  const totalCells=Math.ceil((firstDow+daysInMonth)/7)*7;
-
-  if(!selectedEventDay || eventsMonthOffset!==0) {
-    // Par défaut, sélectionne aujourd'hui si on est sur le mois courant
-  }
-  const todayS=todayStr();
-  if(!selectedEventDay) selectedEventDay=todayS;
-
-  let cellsHTML='';
-  for(let i=0;i<totalCells;i++){
-    const dayNum=i-firstDow+1;
-    let cellDate,inMonth;
-    if(dayNum<1){ cellDate=new Date(year,month-1,daysInPrevMonth+dayNum); inMonth=false; }
-    else if(dayNum>daysInMonth){ cellDate=new Date(year,month+1,dayNum-daysInMonth); inMonth=false; }
-    else{ cellDate=new Date(year,month,dayNum); inMonth=true; }
-    cellDate.setHours(12,0,0,0);
-    const ds=cellDate.getFullYear()+'-'+String(cellDate.getMonth()+1).padStart(2,'0')+'-'+String(cellDate.getDate()).padStart(2,'0');
-    const isToday=ds===todayS;
-    const isSel=ds===selectedEventDay;
-    const dayEvents=events.filter(e=>e.date===ds);
-    const dots=dayEvents.slice(0,3).map(e=>`<span class="ev-dot" style="background:${catColor(e.cat)}"></span>`).join('');
-    cellsHTML+=`<div class="ev-cell ${inMonth?'':'out-month'} ${isToday?'today':''} ${isSel?'selected':''}" onclick="selectEventDay('${ds}')">
-      <span class="ev-cell-num">${cellDate.getDate()}</span>
-      <div class="ev-cell-dots">${dots}</div>
-    </div>`;
-  }
-
-  const dayEvents=events.filter(e=>e.date===selectedEventDay).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
-  const dayLabel=(()=>{const d=new Date(selectedEventDay+'T12:00');let l=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});return l.charAt(0).toUpperCase()+l.slice(1);})();
-  const dayEventsHTML=dayEvents.length?dayEvents.map(e=>`
-    <div class="ev-item" onclick="openEventModal('${e.id}')">
-      <div class="ev-item-dot" style="background:${catColor(e.cat)}"></div>
-      <div class="ev-item-body">
-        <div class="ev-item-title">${esc(e.title)}</div>
-        <div class="ev-item-meta">${e.time?`🕐 ${esc(e.time)}`:'Toute la journée'}${e.location?` · 📍 ${esc(e.location)}`:''}</div>
-      </div>
-    </div>`).join(''):`<div class="empty-state" style="padding:24px 12px"><div class="empty-icon">🎉</div><div class="empty-title">Aucun événement ce jour</div></div>`;
-
-  el.innerHTML=`
-    <div class="main-header">
-      <div class="main-header-top"><div>
-        <div class="main-title">Calendrier</div>
-        <div class="main-subtitle">Événements et dates clés de l'association</div>
-      </div>
-      <div class="main-actions"><button class="btn-icon" onclick="openEventModal(null)" title="Nouvel événement" style="color:var(--accent)">＋</button></div></div>
-    </div>
-    <div class="plan-nav">
-      <button class="plan-nav-btn" onclick="eventsMonthOffset--;renderMain()">◀ Mois préc.</button>
-      <button class="plan-nav-btn" onclick="eventsMonthOffset=0;selectedEventDay=todayStr();renderMain()">Aujourd'hui</button>
-      <span class="plan-range">${monthLabel}</span>
-      <button class="plan-nav-btn" onclick="eventsMonthOffset++;renderMain()">Mois suiv. ▶</button>
-    </div>
-    <div class="ev-wrap">
-      <div class="ev-weekdays"><div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div></div>
-      <div class="ev-grid">${cellsHTML}</div>
-      <div class="ev-day-panel">
-        <div class="ev-day-hdr">
-          <span>${dayLabel}</span>
-          <button class="modal-btn primary" style="padding:5px 12px;font-size:12px" onclick="openEventModal(null,'${selectedEventDay}')">＋ Ajouter</button>
-        </div>
-        ${dayEventsHTML}
-      </div>
-    </div>`;
-}
-function catColor(catName){
-  const idx=cats.findIndex(c=>c.name===catName);
-  const palette=['#4F8EF7','#F59E0B','#A78BFA','#10B981','#F05252','#22D3EE','#EC4899','#84CC16','#F97316','#8892A4'];
-  return palette[idx>=0?idx%palette.length:9];
-}
-function selectEventDay(ds){ selectedEventDay=ds; renderMain(); }
-
-let editingEventId=null;
-function openEventModal(id,presetDate){
-  editingEventId=id;
-  const ev=id?events.find(e=>String(e.id)===String(id)):null;
-  document.getElementById('event-modal-title').textContent=ev?'Modifier l\'événement':'Nouvel événement';
-  document.getElementById('event-inp-title').value=ev?ev.title:'';
-  document.getElementById('event-inp-date').value=ev?ev.date:(presetDate||selectedEventDay||todayStr());
-  document.getElementById('event-inp-time').value=ev?ev.time:'';
-  document.getElementById('event-inp-location').value=ev?ev.location:'';
-  document.getElementById('event-inp-cat').innerHTML=catOpts(ev?ev.cat:cats[0]?.name);
-  document.getElementById('event-inp-desc').value=ev?ev.desc:'';
-  document.getElementById('event-delete-btn').style.display=ev?'inline-block':'none';
-  document.getElementById('event-modal').style.display='flex';
-  setTimeout(()=>document.getElementById('event-inp-title').focus(),50);
-}
-function closeEventModal(){ document.getElementById('event-modal').style.display='none'; editingEventId=null; }
-function saveEvent(){
-  const title=document.getElementById('event-inp-title').value.trim();
-  if(!title){ showToast('⚠️ Le titre est obligatoire'); return; }
-  const date=document.getElementById('event-inp-date').value||todayStr();
-  const time=document.getElementById('event-inp-time').value;
-  const location=document.getElementById('event-inp-location').value.trim();
-  const cat=document.getElementById('event-inp-cat').value;
-  const desc=document.getElementById('event-inp-desc').value.trim();
-  if(editingEventId){
-    const ev=events.find(e=>String(e.id)===String(editingEventId));
-    if(ev){ Object.assign(ev,{title,date,time,location,cat,desc}); upsertEvent(ev); }
-  } else {
-    const ev={id:Date.now(),title,date,time,location,cat,desc,createdBy:APP_CONFIG.userName};
-    events.push(ev);
-    upsertEvent(ev);
-    sendPushNotification({title:'🎉 Nouvel événement', body:title+' — '+fmtFull(date)});
-  }
-  selectedEventDay=date;
-  closeEventModal();
-  renderMain();
-  showToast('🎉 Événement enregistré');
-}
-function deleteEvent(){
-  if(!editingEventId)return;
-  if(!confirm('Supprimer cet événement ?'))return;
-  deleteEventRemote(editingEventId);
-  events=events.filter(e=>String(e.id)!==String(editingEventId));
-  saveEventsLocal();
-  closeEventModal();
-  renderMain();
-  showToast('🗑 Événement supprimé');
-}
-
 // ── AI PAGE ──
 function renderAIPage(el){
   const open=tasks.filter(t=>t.status!=='done');
@@ -2795,14 +2508,8 @@ function updateDetail(f,v){
     document.getElementById('detail-due').value=next;
     v=next;
   }
-  const oldResp=t.resp;
   t[f]=v;
   save(t);
-  // Notifie la personne nouvellement assignée (si différente de l'ancienne et de soi-même)
-  if(f==='resp' && v && v!==oldResp && v!==APP_CONFIG.userName){
-    const target=ASSO_USERS.find(u=>u.name===v);
-    if(target) sendPushNotification({title:'📌 Nouvelle tâche assignée', body:t.title, targetUserId:target.id});
-  }
   // Ne pas re-render si c'est juste une modification de champ texte (évite le clignotement)
   if(f==='title'||f==='comments'){
     updateCounts();
@@ -2905,76 +2612,23 @@ function installPWA(){
   });
 }
 
-// ── NOTIFICATIONS PUSH (comme une vraie app) ──
-function urlBase64ToUint8Array(base64String){
-  const padding='='.repeat((4-base64String.length%4)%4);
-  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
-  const raw=atob(base64);
-  return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)));
-}
-
-async function requestNotifPermission(){
-  if(!('Notification' in window)){showToast('❌ Notifications non supportées sur ce navigateur');return;}
-  if(!('serviceWorker' in navigator) || !('PushManager' in window)){
-    showToast('❌ Notifications push non supportées ici');return;
-  }
-  const perm=await Notification.requestPermission();
-  if(perm!=='granted'){ showToast('❌ Notifications refusées'); return; }
-  try {
-    const reg=await navigator.serviceWorker.ready;
-    let sub=await reg.pushManager.getSubscription();
-    if(!sub){
-      sub=await reg.pushManager.subscribe({
-        userVisibleOnly:true,
-        applicationServerKey:urlBase64ToUint8Array(APP_CONFIG.vapidPublicKey)
-      });
+// Demander permission notifications
+function requestNotifPermission(){
+  if(!('Notification' in window)){showToast('❌ Notifications non supportées');return;}
+  Notification.requestPermission().then(perm=>{
+    if(perm==='granted'){
+      showToast('🔔 Notifications activées !');
+      // Envoyer une notification de test
+      setTimeout(()=>{
+        new Notification('Asso Manager',{
+          body:'Les notifications sont activées ✓',
+          icon:'icons/icon-192.png'
+        });
+      },500);
+    } else {
+      showToast('❌ Notifications refusées');
     }
-    await saveSubscription(sub);
-    showToast('🔔 Notifications activées !');
-    updateNotifBtnState(true);
-  } catch(e){
-    console.error('[Push] Erreur abonnement:', e);
-    showToast('❌ Impossible d\'activer les notifications');
-  }
-}
-
-async function saveSubscription(sub){
-  const sb=getSupabase(); if(!sb || !CURRENT_USER) return;
-  const j=sub.toJSON();
-  try {
-    await sb.from('push_subscriptions').upsert({
-      user_id: CURRENT_USER.id,
-      endpoint: j.endpoint,
-      p256dh: j.keys.p256dh,
-      auth: j.keys.auth
-    }, { onConflict:'endpoint' });
-  } catch(e){ console.error('[Push] Erreur enregistrement abonnement:', e); }
-}
-
-async function updateNotifBtnState(forceOn){
-  const btn=document.getElementById('notif-perm-btn'); if(!btn) return;
-  let isOn=forceOn;
-  if(isOn===undefined && 'serviceWorker' in navigator){
-    try {
-      const reg=await navigator.serviceWorker.ready;
-      const sub=await reg.pushManager.getSubscription();
-      isOn=!!sub && Notification.permission==='granted';
-    } catch(e){ isOn=false; }
-  }
-  btn.style.color=isOn?'var(--accent)':'';
-  btn.title=isOn?'Notifications activées':'Activer les notifications';
-}
-
-// Envoie une notification push à tous les membres du bureau (ou un seul si targetUserId fourni)
-async function sendPushNotification({title,body,url,targetUserId}){
-  if(!APP_CONFIG.usePush || !APP_CONFIG.pushProxyUrl) return;
-  try {
-    await fetch(APP_CONFIG.pushProxyUrl,{
-      method:'POST',
-      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+APP_CONFIG.supabaseKey },
-      body:JSON.stringify({title,body,url,targetUserId})
-    });
-  } catch(e){ console.warn('[Push] Envoi impossible (fonction non déployée ?):', e); }
+  });
 }
 
 // ── INIT ──
