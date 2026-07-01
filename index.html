@@ -2949,26 +2949,46 @@ async function requestNotifPermission(){
         applicationServerKey:urlBase64ToUint8Array(APP_CONFIG.vapidPublicKey)
       });
     }
-    await saveSubscription(sub);
-    showToast('🔔 Notifications activées !');
-    updateNotifBtnState(true);
+    const ok=await saveSubscription(sub);
+    if(ok){
+      showToast('🔔 Notifications activées !');
+      updateNotifBtnState(true);
+    } else {
+      updateNotifBtnState(false);
+    }
   } catch(e){
     console.error('[Push] Erreur abonnement:', e);
-    showToast('❌ Impossible d\'activer les notifications');
+    showToast('❌ Impossible d\'activer les notifications : '+(e.message||e));
   }
 }
 
 async function saveSubscription(sub){
-  const sb=getSupabase(); if(!sb || !CURRENT_USER) return;
+  const sb=getSupabase(); if(!sb || !CURRENT_USER) return false;
   const j=sub.toJSON();
+  if(!j.endpoint || !j.keys || !j.keys.p256dh || !j.keys.auth){
+    console.error('[Push] Abonnement incomplet:', j);
+    showToast('❌ Abonnement push incomplet');
+    return false;
+  }
   try {
-    await sb.from('push_subscriptions').upsert({
+    const {error}=await sb.from('push_subscriptions').upsert({
       user_id: CURRENT_USER.id,
       endpoint: j.endpoint,
       p256dh: j.keys.p256dh,
       auth: j.keys.auth
     }, { onConflict:'endpoint' });
-  } catch(e){ console.error('[Push] Erreur enregistrement abonnement:', e); }
+    if(error){
+      console.error('[Push] Erreur Supabase enregistrement abonnement:', error);
+      showToast('❌ Erreur serveur : '+(error.message||'abonnement non enregistré'));
+      return false;
+    }
+    console.log('[Push] Abonnement enregistré pour', CURRENT_USER.id);
+    return true;
+  } catch(e){
+    console.error('[Push] Erreur enregistrement abonnement:', e);
+    showToast('❌ Erreur réseau lors de l\'enregistrement');
+    return false;
+  }
 }
 
 async function updateNotifBtnState(forceOn){
