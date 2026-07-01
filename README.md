@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Asso Manager
 
 Gestionnaire de tâches pour le bureau de l'association (Présidente, Secrétaire, Trésorier), avec synchronisation Supabase.
@@ -28,3 +29,6 @@ Les mots de passe des 3 comptes (Anaïs, Gabrielle, Antoine) se changent dans `i
 ```js
 const ASSO_USERS = [ ... ]
 ```
+=======
+# asso-manager
+>>>>>>> 536001b151e7a44b065fadaedf0993361e0bbb03
