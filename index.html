@@ -82,6 +82,7 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .login-back{text-align:center;margin-top:10px;font-size:12px;color:var(--text-muted);cursor:pointer}
 .login-back:hover{color:var(--text-secondary)}
 .login-hint{text-align:center;font-size:10.5px;color:var(--text-muted);margin-top:18px;line-height:1.5}
+#app-root{display:flex;flex-direction:column;height:100%;overflow:hidden}
 
 /* ── LAYOUT ── */
 .layout{display:flex;flex:1;overflow:hidden}
@@ -952,7 +953,10 @@ function getSupabase(){
 }
 
 async function syncAll(){
-  const sb = getSupabase(); if(!sb) return;
+  let sb;
+  try { sb = getSupabase(); }
+  catch(e){ console.error('[Supabase] Client init error:', e); }
+  if(!sb){ renderMain(); updateCounts(); renderSidebarCats(); return; }
   try {
     // Tâches
     const {data:tdata, error:te} = await sb.from('tasks').select('*').order('created_at',{ascending:false});
@@ -976,9 +980,14 @@ async function syncAll(){
     // Notifications
     const {data:ndata} = await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(30);
     if(ndata) notifications = ndata.map(n=>({id:n.id,icon:n.icon,title:n.title,sub:n.sub,type:n.type,read:n.read,time:new Date(n.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}));
-    renderMain(); updateCounts(); renderSidebarCats();
     console.log('[Supabase] Sync OK —', tasks.length, 'tâches');
-  } catch(e){ console.error('[Supabase] Sync error:', e); }
+  } catch(e){
+    console.error('[Supabase] Sync error:', e);
+    showToast('⚠️ Connexion au serveur impossible — données locales affichées');
+  } finally {
+    // Toujours afficher l'interface, même si la synchro a échoué
+    renderMain(); updateCounts(); renderSidebarCats();
+  }
 }
 
 async function upsertTask(t){
@@ -2592,7 +2601,10 @@ function requestNotifPermission(){
 function startApp(){
   initAI();
   if(APP_CONFIG.useSupabase){
-    syncAll().then(()=>{ checkAlerts(); });
+    syncAll().then(()=>{ checkAlerts(); }).catch(e=>{
+      console.error('[startApp] Erreur inattendue:', e);
+      renderMain(); updateCounts(); renderSidebarCats();
+    });
   } else {
     checkAlerts();
     renderSidebarCats();
