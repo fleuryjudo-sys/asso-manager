@@ -35,7 +35,7 @@
   --topbar-h:calc(46px + env(safe-area-inset-top));
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{overscroll-behavior:none}
+html,body{overscroll-behavior:none;touch-action:pan-x pan-y}
 button,.sidebar-item,.sidebar-cat-item,.filter-chip,.task-item,.login-profile,.btn-icon,.modal-btn,.date-quick-btn,.plan-nav-btn{touch-action:manipulation}
 html,body{height:100%;overflow:hidden}
 body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(--bg);color:var(--text-primary);display:flex;flex-direction:column}
@@ -2550,6 +2550,15 @@ document.addEventListener('keydown',e=>{
   if(e.key==='a'||e.key==='A')setView('ai',null);
 });
 
+
+// ── BLOCAGE DU PINCEMENT-ZOOM ──
+// Safari iOS ignore volontairement "user-scalable=no" dans la balise <meta>
+// (choix d'Apple pour l'accessibilité). Il faut donc intercepter le geste
+// de pincement directement, comme le font les vraies apps natives.
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('gesturechange', e => e.preventDefault());
+document.addEventListener('gestureend', e => e.preventDefault());
+document.addEventListener('touchmove', e => { if(e.touches.length > 1) e.preventDefault(); }, { passive:false });
 
 // ── PWA : Service Worker + Install prompt ──
 let pwaInstallPrompt=null;
