@@ -49,7 +49,7 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;pointer-events:none}
 .topbar-user{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 10px 4px 4px;cursor:pointer}
 .topbar-avatar{width:26px;height:26px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
-.topbar-name{font-size:12px;color:var(--text-secondary);display:block}
+.topbar-name{font-size:12px;color:var(--text-secondary)}
 .topbar-role{font-size:9px;color:var(--text-muted);display:block;line-height:1.2}
 .user-menu{position:absolute;top:40px;right:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:6px;min-width:170px;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .user-menu-item{padding:8px 10px;font-size:12.5px;color:var(--text-secondary);border-radius:var(--radius);cursor:pointer;transition:background .1s}
@@ -339,12 +339,6 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 /* ── MOBILE RESPONSIVE ── */
 @media(max-width:768px){
   :root{--sidebar-w:0px;--detail-w:100%}
-  .task-item{align-items:flex-start;padding:10px}
-  .task-body{flex-direction:column;align-items:flex-start;gap:4px;width:100%}
-  .task-name{white-space:normal;flex:none;width:100%;font-size:14px}
-  .task-meta{flex-wrap:wrap;margin-left:0;row-gap:4px}
-  .task-right{flex-direction:column;align-items:flex-end;gap:5px;margin-left:6px}
-  .task-circle{margin-top:2px}
   .sidebar{position:fixed;left:-260px;top:46px;bottom:0;width:260px;z-index:150;transition:left .25s;border-right:1px solid var(--border2)}
   .sidebar.open{left:0;box-shadow:4px 0 20px rgba(0,0,0,.5)}
   .layout{flex-direction:column}
@@ -353,12 +347,6 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
   .topbar{padding:0 12px;gap:8px}
   .topbar-title{font-size:12px}
   .topbar-name{display:none}
-  .topbar-role{display:none}
-  .topbar-user{padding:4px;gap:0}
-  .topbar-title{display:none}
-  .topbar-logo{margin-right:-2px}
-  #tpl-btn,#notif-perm-btn{display:none}
-  .btn-icon{width:34px;height:34px;font-size:15px}
   .search-wrap{max-width:140px}
   .search-wrap input{font-size:12px;padding:5px 10px 5px 28px}
   .main-header{padding:12px 14px 0}
@@ -380,9 +368,6 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
   #mobile-menu-btn{display:flex !important}
   .mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:149}
   .mobile-overlay.open{display:block}
-  .ai-page-content{flex-direction:column;overflow-y:auto}
-  .ai-suggest-panel{width:100%;border-right:none;border-bottom:1px solid var(--border);max-height:240px;flex-shrink:0}
-  .ai-chat-wrap{min-height:360px}
 }
 @media(min-width:769px){
   #mobile-menu-btn{display:none !important}
@@ -562,16 +547,16 @@ select option{background:#1C2130;color:#EDF0F7}
     <button class="btn-icon notif-btn" id="notif-btn" onclick="toggleNotifPanel()" title="Notifications">🔔<span class="notif-dot" id="notif-dot" style="display:none"></span></button>
     <div id="notif-panel-wrap" style="display:none;position:absolute;top:36px;right:0;z-index:300"></div>
   </div>
-  <button class="btn-icon" id="tpl-btn" onclick="openTplModal()" title="Modèles de tâches" style="font-size:13px">📋</button>
+  <button class="btn-icon" onclick="openTplModal()" title="Modèles de tâches" style="font-size:13px">📋</button>
   <button class="btn-icon" id="pwa-install-btn" onclick="installPWA()" title="Installer l'application" style="display:none;color:var(--green);font-size:13px;gap:4px;padding:0 8px;width:auto">
     📲 <span style="font-size:11px;font-weight:500">Installer</span>
   </button>
-  <button class="btn-icon" id="notif-perm-btn" onclick="requestNotifPermission()" title="Activer les notifications" style="font-size:14px">🔔</button>
+  <button class="btn-icon" onclick="requestNotifPermission()" title="Activer les notifications" style="font-size:14px">🔔</button>
   <div style="position:relative">
     <div class="topbar-user" onclick="toggleUserMenu()">
       <div class="topbar-avatar" id="user-initials">A</div>
       <span>
-        <span class="topbar-name" id="user-name">—</span>
+        <span class="topbar-name" id="user-name" style="display:block">—</span>
         <span class="topbar-role" id="user-role"></span>
       </span>
     </div>
@@ -736,7 +721,6 @@ select option{background:#1C2130;color:#EDF0F7}
 <script>
 // ── CORE ──
 const TODAY=new Date();TODAY.setHours(0,0,0,0);
-const isTouchDevice=()=>('ontouchstart' in window)||navigator.maxTouchPoints>0;
 const fmtD=d=>{const dt=new Date(d+'T12:00');return dt.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})};
 const fmtFull=d=>{const dt=new Date(d+'T12:00');return dt.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})};
 const daysLeft=d=>{const dt=new Date(d+'T12:00');dt.setHours(0,0,0,0);return Math.round((dt-TODAY)/86400000)};
@@ -1241,7 +1225,7 @@ function renderTplList(){
 }
 function useTemplate(id){
   const tpl=templates.find(t=>t.id===id);if(!tpl)return;
-  const newTask={id:Date.now(),title:tpl.title,due:todayStr(),time:tpl.time,cat:tpl.cat,prio:tpl.prio,status:'todo',resp:APP_CONFIG.userName,comments:tpl.comments||'',starred:false,myjour:false,recur:tpl.recur||''};
+  const newTask={id:Date.now(),title:tpl.title,due:todayStr(),time:tpl.time,cat:tpl.cat,prio:tpl.prio,status:'todo',resp:'Sophie Mercier',comments:tpl.comments||'',starred:false,myjour:false,recur:tpl.recur||''};
   tasks.unshift(newTask);save();closeTplModal();renderMain();updateCounts();
   showToast(`✅ Tâche créée depuis le modèle « ${tpl.title} »`);
   setTimeout(()=>selectTask(newTask.id),60);
@@ -1578,7 +1562,7 @@ function renderPlanning(el){
     <div class="main-header">
       <div class="main-header-top"><div>
         <div class="main-title">Vue planning</div>
-        <div class="main-subtitle">${isTouchDevice()?'Appuyez sur une tâche pour la modifier':'Glissez-déposez les tâches entre journées · Cliquez pour modifier'}</div>
+        <div class="main-subtitle">Glissez-déposez les tâches entre journées · Cliquez pour modifier</div>
       </div>
       <div class="main-actions"><button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)">✦</button></div></div>
     </div>
@@ -1796,7 +1780,7 @@ function renderKanban(el){
     <div class="main-header">
       <div class="main-header-top"><div>
         <div class="main-title">Kanban — Ma journée</div>
-        <div class="main-subtitle">${isTouchDevice()?'Tâches de Ma journée · Appuyez pour ouvrir une tâche':'Tâches de Ma journée · Glissez entre colonnes pour changer le statut'}</div>
+        <div class="main-subtitle">Tâches de Ma journée · Glissez entre colonnes pour changer le statut</div>
       </div>
       <div class="main-actions">
         <button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)">✦</button>
@@ -1930,7 +1914,7 @@ function renderByCategory(el){
     <div class="main-header">
       <div class="main-header-top"><div>
         <div class="main-title">Vue par catégorie</div>
-        <div class="main-subtitle">${isTouchDevice()?'Appuyez sur une tâche pour changer sa catégorie':'Glissez une tâche vers une autre catégorie pour la reclasser'}</div>
+        <div class="main-subtitle">Glissez une tâche vers une autre catégorie pour la reclasser</div>
       </div>
       <div class="main-actions"><button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)">✦</button></div></div>
     </div>
@@ -2016,7 +2000,7 @@ function initAI(){
   const sorted=[...open].sort((a,b)=>calcScore(b)-calcScore(a));
   const mj=open.filter(t=>t.myjour);
   const rec=open.filter(t=>t.recur);
-  aiMsgs=[{role:'ai',text:`Bonjour ${esc(APP_CONFIG.userName)} 👋<br><br>Vous avez <strong>${open.length} tâches ouvertes</strong> (${open.reduce((a,b)=>a+b.time,0).toFixed(1)}h).<br>☀️ Ma journée : <strong>${mj.length} tâche${mj.length!==1?'s':''}</strong> · ${mj.reduce((a,b)=>a+b.time,0).toFixed(1)}h<br>🔁 Tâches récurrentes : <strong>${rec.length}</strong><br>🔥 Top priorité : <strong>${sorted[0]?.title||'–'}</strong>${ov.length?`<br><br>⚠️ <strong>${ov.length} en retard</strong>`:''}`}];
+  aiMsgs=[{role:'ai',text:`Bonjour Sophie 👋<br><br>Vous avez <strong>${open.length} tâches ouvertes</strong> (${open.reduce((a,b)=>a+b.time,0).toFixed(1)}h).<br>☀️ Ma journée : <strong>${mj.length} tâche${mj.length!==1?'s':''}</strong> · ${mj.reduce((a,b)=>a+b.time,0).toFixed(1)}h<br>🔁 Tâches récurrentes : <strong>${rec.length}</strong><br>🔥 Top priorité : <strong>${sorted[0]?.title||'–'}</strong>${ov.length?`<br><br>⚠️ <strong>${ov.length} en retard</strong>`:''}`}];
 }
 function saveClaude(){
   const key=document.getElementById('claude-key-inp')?.value.trim();
