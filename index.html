@@ -2649,6 +2649,29 @@ function startApp(){
 }
 
 checkSession();
+
+// ── RAFRAÎCHISSEMENT AUTOMATIQUE AU RETOUR SUR L'APP ──
+// Sur iPhone/Android, rouvrir une PWA depuis l'écran d'accueil ne recharge pas
+// la page (le système réaffiche juste l'app telle qu'elle était en mémoire).
+// On force donc une resynchronisation avec Supabase à chaque retour au premier
+// plan, pour ne jamais avoir besoin de fermer complètement l'app.
+let _lastAutoSync = Date.now();
+function autoResync(){
+  if(!CURRENT_USER || !APP_CONFIG.useSupabase) return;
+  // Évite de resynchroniser trop souvent (ex: plusieurs événements coup sur coup)
+  if(Date.now() - _lastAutoSync < 4000) return;
+  // Ne pas interrompre une saisie en cours (champ de texte actif)
+  const activeTag = document.activeElement && document.activeElement.tagName;
+  if(activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
+  _lastAutoSync = Date.now();
+  syncAll();
+}
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible') autoResync();
+});
+window.addEventListener('pageshow', () => autoResync());
+window.addEventListener('focus', () => autoResync());
+
 </script>
 </body>
 </html>
