@@ -1367,26 +1367,6 @@ function renderSidebarCats(){
 
 // ── CATEGORY MODAL ──
 let editingCat=null;
-async function upsertCategory(oldName,newName,icon,position){
-  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
-  if(!sb) return;
-  try {
-    if(oldName){
-      const {error}=await sb.from('categories').update({name:newName,icon}).eq('name',oldName);
-      if(error) console.error('[Supabase] upsertCategory (update) error:',error);
-    } else {
-      const {error}=await sb.from('categories').insert({name:newName,icon,position:position||0});
-      if(error) console.error('[Supabase] upsertCategory (insert) error:',error);
-    }
-  } catch(e){ console.error('[Supabase] upsertCategory error:',e); }
-}
-async function deleteCategoryRemote(name){
-  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
-  if(!sb) return;
-  try { await sb.from('categories').delete().eq('name',name); }
-  catch(e){ console.error('[Supabase] deleteCategory error:',e); }
-}
-
 function openCatModal(name){
   editingCat=name;
   document.getElementById('cat-modal-title').textContent=name?'Modifier la catégorie':'Nouvelle catégorie';
@@ -1402,23 +1382,14 @@ function saveCat(){
   const name=document.getElementById('cat-inp-name').value.trim();
   const icon=document.getElementById('cat-inp-icon').value.trim()||'📁';
   if(!name)return;
-  const oldName=editingCat;
-  let renamedTasks=[];
   if(editingCat){
     const idx=cats.findIndex(c=>c.name===editingCat);
-    if(idx>=0){
-      if(name!==editingCat){
-        tasks.forEach(t=>{if(t.cat===editingCat){t.cat=name;renamedTasks.push(t);}});
-      }
-      cats[idx]={name,icon};
-    }
+    if(idx>=0){if(name!==editingCat)tasks.forEach(t=>{if(t.cat===editingCat)t.cat=name});cats[idx]={name,icon};}
   } else {
     if(cats.find(c=>c.name===name)){alert('Cette catégorie existe déjà.');return}
     cats.push({name,icon});
   }
-  saveCats();localStorage.setItem('raf_v5',JSON.stringify(tasks));closeCatModal();renderSidebarCats();renderMain();updateCounts();
-  upsertCategory(oldName,name,icon,cats.length-1);
-  if(APP_CONFIG.useSupabase) renamedTasks.forEach(t=>upsertTask(t));
+  saveCats();save();closeCatModal();renderSidebarCats();renderMain();updateCounts();
   const sel=document.getElementById('detail-cat');
   if(sel&&selectedId){const t=tasks.find(x=>x.id===selectedId);sel.innerHTML=catOpts(t?t.cat:'')}
 }
@@ -1426,14 +1397,11 @@ function deleteCat(){
   if(!editingCat)return;
   const used=tasks.filter(t=>t.cat===editingCat).length;
   if(used>0&&!confirm(`${used} tâche(s) seront réaffectées à "Divers". Continuer ?`))return;
-  const reassigned=[];
-  tasks.forEach(t=>{if(t.cat===editingCat){t.cat='Divers';reassigned.push(t);}});
+  tasks.forEach(t=>{if(t.cat===editingCat)t.cat='Divers'});
   cats=cats.filter(c=>c.name!==editingCat);
-  saveCats();localStorage.setItem('raf_v5',JSON.stringify(tasks));closeCatModal();
+  saveCats();save();closeCatModal();
   if(currentView==='cat-'+editingCat)currentView='all';
   renderSidebarCats();renderMain();updateCounts();
-  deleteCategoryRemote(editingCat);
-  if(APP_CONFIG.useSupabase) reassigned.forEach(t=>upsertTask(t));
 }
 
 // ── TEMPLATE MODAL ──
@@ -2966,27 +2934,21 @@ function urlBase64ToUint8Array(base64String){
 }
 
 async function requestNotifPermission(){
-  if(!('Notification' in window)){showToast('❌ 1/4 Notifications non supportées sur ce navigateur');return;}
+  if(!('Notification' in window)){showToast('❌ Notifications non supportées sur ce navigateur');return;}
   if(!('serviceWorker' in navigator) || !('PushManager' in window)){
-    showToast('❌ 1/4 Push non supporté (app installée sur l\'écran d\'accueil ?)');return;
+    showToast('❌ Notifications push non supportées ici');return;
   }
-  showToast('⏳ 1/4 Demande de permission…', 2500);
   const perm=await Notification.requestPermission();
-  if(perm!=='granted'){ showToast('❌ 1/4 Notifications refusées dans les réglages'); return; }
+  if(perm!=='granted'){ showToast('❌ Notifications refusées'); return; }
   try {
-    showToast('⏳ 2/4 Connexion au service worker…', 2500);
     const reg=await navigator.serviceWorker.ready;
     let sub=await reg.pushManager.getSubscription();
     if(!sub){
-      showToast('⏳ 3/4 Abonnement en cours…', 2500);
       sub=await reg.pushManager.subscribe({
         userVisibleOnly:true,
         applicationServerKey:urlBase64ToUint8Array(APP_CONFIG.vapidPublicKey)
       });
-    } else {
-      showToast('✓ 3/4 Abonnement déjà existant', 2000);
     }
-    showToast('⏳ 4/4 Enregistrement sur le serveur…', 2500);
     const ok=await saveSubscription(sub);
     if(ok){
       showToast('🔔 Notifications activées !');
@@ -2996,7 +2958,7 @@ async function requestNotifPermission(){
     }
   } catch(e){
     console.error('[Push] Erreur abonnement:', e);
-    showToast('❌ Erreur à l\'étape 3 : '+(e.name||'')+' '+(e.message||e), 6000);
+    showToast('❌ Impossible d\'activer les notifications : '+(e.message||e));
   }
 }
 
