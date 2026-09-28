@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Asso Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -32,14 +32,18 @@
   --teal:#22D3EE;--teal-bg:rgba(34,211,238,.12);
   --radius:6px;--radius-lg:10px;--radius-xl:14px;
   --sidebar-w:256px;--detail-w:316px;
+  --topbar-h:calc(46px + env(safe-area-inset-top));
 }
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{overscroll-behavior:none;touch-action:pan-x pan-y}
+button,.sidebar-item,.sidebar-cat-item,.filter-chip,.task-item,.login-profile,.btn-icon,.modal-btn,.date-quick-btn,.plan-nav-btn{touch-action:manipulation}
 html,body{height:100%;overflow:hidden}
 body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(--bg);color:var(--text-primary);display:flex;flex-direction:column}
 
 /* ── TOPBAR ── */
-.topbar{height:46px;background:var(--sidebar-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0}
-.topbar-logo{width:28px;height:28px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.topbar{height:var(--topbar-h);background:var(--sidebar-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:env(safe-area-inset-top) 16px 0;gap:10px;flex-shrink:0}
+.topbar-logo{width:28px;height:28px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff}
+.topbar-logo img{width:100%;height:100%;object-fit:cover}
 .topbar-title{font-size:13px;font-weight:600;color:var(--text-primary);letter-spacing:.2px}
 .topbar-sep{flex:1}
 .search-wrap{position:relative;flex:1;max-width:320px}
@@ -59,9 +63,10 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .user-menu-hdr .um-role{font-size:11px;color:var(--accent)}
 
 /* ── LOGIN SCREEN ── */
-#login-screen{position:fixed;inset:0;background:radial-gradient(circle at 30% 20%,#1b2436 0%,var(--bg) 60%);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+#login-screen{position:fixed;inset:0;background:radial-gradient(circle at 30% 20%,#1b2436 0%,var(--bg) 60%);z-index:1000;display:flex;align-items:center;justify-content:center;padding:calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom))}
 .login-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-xl);padding:28px 26px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
-.login-logo{width:44px;height:44px;background:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;margin:0 auto 14px}
+.login-logo{width:76px;height:76px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff;margin:0 auto 14px;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+.login-logo img{width:100%;height:100%;object-fit:cover}
 .login-title{text-align:center;font-size:17px;font-weight:600;color:var(--text-primary);margin-bottom:2px}
 .login-sub{text-align:center;font-size:12.5px;color:var(--text-muted);margin-bottom:20px}
 .login-profiles{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
@@ -130,7 +135,7 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .btn-icon:hover{background:var(--surface3);color:var(--text-primary)}
 
 /* ── METRICS ── */
-.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 22px;flex-shrink:0}
+.metrics-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px 22px;flex-shrink:0}
 .metric-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 14px;cursor:pointer;transition:background .1s}
 .metric-card:hover{background:var(--surface3)}
 .metric-val{font-size:20px;font-weight:700;line-height:1}
@@ -175,7 +180,7 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .add-btn:hover{background:var(--accent-dim)}
 
 /* ── TASK LIST ── */
-.task-scroll{flex:1;overflow-y:auto;padding:0 22px 20px}
+.task-scroll{flex:1;overflow-y:auto;padding:0 22px calc(20px + env(safe-area-inset-bottom))}
 .task-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-lg);cursor:pointer;transition:background .1s;margin-bottom:2px;border:1px solid transparent;min-height:44px}
 .task-item:hover{background:var(--surface2);border-color:var(--border)}
 .task-item.selected{background:rgba(79,142,247,.1);border-color:rgba(79,142,247,.3)}
@@ -260,8 +265,8 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .task-item.overdue-item.tc-6,.task-item.overdue-item.tc-7,.task-item.overdue-item.tc-8,
 .task-item.overdue-item.tc-9{border-left:3px solid var(--red)}
 /* ── PLANNING ── */
-.planning-wrap{flex:1;overflow:auto;padding:12px 22px 20px;display:flex;flex-direction:column}
-.planning-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;flex:1;min-height:0}
+.planning-wrap{flex:1;overflow:auto;padding:12px 22px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column}
+.planning-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;flex:1;min-height:0}
 .plan-col{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;height:100%}
 .plan-col.today-col{border-color:var(--accent)}
 .plan-col-hdr{padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
@@ -292,8 +297,29 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .plan-nav-btn:hover{background:var(--surface3);color:var(--text-primary)}
 .plan-range{font-size:13px;color:var(--text-primary);font-weight:500;flex:1}
 
+/* ── CALENDRIER D'ÉVÉNEMENTS ── */
+.ev-wrap{flex:1;overflow:auto;padding:8px 22px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;min-height:0}
+.ev-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;flex-shrink:0}
+.ev-weekdays div{font-size:10.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;text-align:center;padding:2px 0}
+.ev-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;flex-shrink:0}
+.ev-cell{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);min-height:56px;padding:6px;cursor:pointer;transition:background .1s,border-color .1s;display:flex;flex-direction:column;gap:4px}
+.ev-cell:hover{background:var(--surface3)}
+.ev-cell.out-month{opacity:.35}
+.ev-cell.today .ev-cell-num{color:#fff;background:var(--accent);border-radius:50%;width:19px;height:19px;display:flex;align-items:center;justify-content:center}
+.ev-cell.selected{border-color:var(--accent);background:var(--sidebar-active)}
+.ev-cell-num{font-size:12px;font-weight:600;color:var(--text-secondary)}
+.ev-cell-dots{display:flex;gap:3px;flex-wrap:wrap}
+.ev-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ev-day-panel{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;min-height:120px}
+.ev-day-hdr{display:flex;align-items:center;justify-content:space-between;font-size:13.5px;font-weight:600;color:var(--text-primary);margin-bottom:10px;text-transform:capitalize}
+.ev-item{display:flex;gap:10px;align-items:flex-start;padding:9px 6px;border-radius:var(--radius);cursor:pointer;transition:background .1s}
+.ev-item:hover{background:var(--surface3)}
+.ev-item-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.ev-item-title{font-size:13.5px;color:var(--text-primary);font-weight:500}
+.ev-item-meta{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+
 /* ── KANBAN ── */
-.kanban-wrap{flex:1;overflow-x:auto;overflow-y:hidden;padding:12px 22px 20px}
+.kanban-wrap{flex:1;overflow-x:auto;overflow-y:hidden;padding:12px 22px calc(20px + env(safe-area-inset-bottom))}
 .kanban-grid{display:flex;gap:14px;height:100%;min-width:600px}
 .kb-col{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);width:260px;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden}
 .kb-col-hdr{padding:12px 14px 10px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:8px}
@@ -311,8 +337,9 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .kb-card-due.overdue{color:var(--red);font-weight:500}
 
 /* ── DASHBOARD ── */
-.dash-wrap{flex:1;overflow-y:auto;padding:16px 22px 24px}
-.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dash-wrap{flex:1;overflow-y:auto;padding:16px 22px calc(24px + env(safe-area-inset-bottom))}
+.dash-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.dash-top-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:14px}
 .dash-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
 .dash-card-title{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
 .dash-card.full{grid-column:1/-1}
@@ -321,7 +348,7 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .dash-bar-track{flex:1;height:8px;background:var(--surface3);border-radius:4px;overflow:hidden}
 .dash-bar-fill{height:100%;border-radius:4px;transition:width .4s}
 .dash-bar-val{font-size:11px;color:var(--text-muted);width:28px;text-align:right}
-.dash-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.dash-stat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 /* Graphique tâches réalisées */
 .chart-tabs{display:flex;gap:4px;margin-bottom:14px}
 .chart-tab{padding:4px 12px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text-secondary);font-family:inherit;transition:all .12s}
@@ -339,17 +366,21 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 /* ── MOBILE RESPONSIVE ── */
 @media(max-width:768px){
   :root{--sidebar-w:0px;--detail-w:100%}
+  /* Empêche le zoom automatique de Safari iOS sur les champs de saisie */
+  input,select,textarea{font-size:16px !important}
+  .date-quick-btn{font-size:12px}
   .task-item{align-items:flex-start;padding:10px}
+  .task-item .task-due-date,.task-item .task-time,.task-item .star-btn{display:none}
   .task-body{flex-direction:column;align-items:flex-start;gap:4px;width:100%}
-  .task-name{white-space:normal;flex:none;width:100%;font-size:14px}
+  .task-name{white-space:normal;flex:none;width:100%;font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis}
   .task-meta{flex-wrap:wrap;margin-left:0;row-gap:4px}
   .task-right{flex-direction:column;align-items:flex-end;gap:5px;margin-left:6px}
   .task-circle{margin-top:2px}
-  .sidebar{position:fixed;left:-260px;top:46px;bottom:0;width:260px;z-index:150;transition:left .25s;border-right:1px solid var(--border2)}
+  .sidebar{position:fixed;left:-260px;top:var(--topbar-h);bottom:0;width:260px;z-index:150;transition:left .25s;border-right:1px solid var(--border2)}
   .sidebar.open{left:0;box-shadow:4px 0 20px rgba(0,0,0,.5)}
   .layout{flex-direction:column}
   .main{width:100%}
-  .detail{position:fixed;inset:46px 0 0 0;width:100%;z-index:140;border-left:none;border-top:1px solid var(--border)}
+  .detail{position:fixed;inset:var(--topbar-h) 0 0 0;width:100%;z-index:140;border-left:none;border-top:1px solid var(--border)}
   .topbar{padding:0 12px;gap:8px}
   .topbar-title{font-size:12px}
   .topbar-name{display:none}
@@ -367,9 +398,11 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
   .add-task-wrap{padding:0 14px 8px}
   .filter-bar{padding:0 14px 8px}
   .ai-banner{margin:0 14px 8px}
-  .metrics-row{padding:8px 14px;grid-template-columns:repeat(2,1fr)}
+  .metrics-row{padding:8px 14px;grid-template-columns:repeat(2,minmax(0,1fr))}
   .dash-wrap{padding:10px 14px 20px}
-  .dash-grid{grid-template-columns:1fr}
+  .dash-grid{grid-template-columns:minmax(0,1fr)}
+  .dash-top-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .metric-val{font-size:17px}
   .planning-wrap{padding:8px 10px 16px}
   .kanban-wrap{padding:8px 10px 16px}
   .kanban-grid{min-width:500px}
@@ -381,6 +414,9 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
   .mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:149}
   .mobile-overlay.open{display:block}
   .ai-page-content{flex-direction:column;overflow-y:auto}
+  .ev-cell{min-height:40px;padding:4px}
+  .ev-weekdays div{font-size:9px}
+  .ev-cell-num{font-size:11px}
   .ai-suggest-panel{width:100%;border-right:none;border-bottom:1px solid var(--border);max-height:240px;flex-shrink:0}
   .ai-chat-wrap{min-height:360px}
 }
@@ -399,7 +435,7 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .dash-recent-task{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .dash-recent-task:last-child{border-bottom:none}
 .dash-recent-task:hover .dash-recent-title{color:var(--accent)}
-.dash-recent-title{font-size:12.5px;color:var(--text-primary);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-recent-title{font-size:12.5px;color:var(--text-primary);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ── AI PAGE ── */
 .ai-page-content{flex:1;display:flex;overflow:hidden}
@@ -428,7 +464,7 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .ai-quick-row{padding:8px 14px;display:flex;gap:5px;flex-wrap:wrap;border-top:1px solid var(--border)}
 .ai-q-btn{font-size:11px;padding:4px 10px;border:1px solid var(--border2);border-radius:20px;background:var(--surface2);color:var(--text-secondary);cursor:pointer;font-family:inherit;transition:all .1s}
 .ai-q-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
-.ai-input-row{padding:10px 14px;display:flex;gap:7px;align-items:center;border-top:1px solid var(--border)}
+.ai-input-row{padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:7px;align-items:center;border-top:1px solid var(--border)}
 .ai-input{flex:1;padding:8px 12px;border:1px solid var(--border2);border-radius:20px;font-size:13px;font-family:inherit;outline:none;background:var(--surface2);color:var(--text-primary);transition:border-color .15s}
 .ai-input:focus{border-color:var(--accent)}
 .ai-send{background:var(--accent);color:#fff;border:none;width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s}
@@ -453,7 +489,7 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .modal-btn.primary:hover{background:var(--accent-dim)}
 .modal-btn.danger{color:var(--red);border-color:var(--red-bg)}
 .modal-btn.danger:hover{background:var(--red-bg)}
-.modal-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-2col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
 .tpl-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 12px;cursor:pointer;transition:all .12s;display:flex;align-items:flex-start;gap:8px}
 .tpl-card:hover{border-color:var(--accent);background:rgba(79,142,247,.06)}
 .tpl-card-body{flex:1}
@@ -466,6 +502,8 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 .notif-panel-hdr{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
 .notif-panel-title{font-size:14px;font-weight:600;flex:1}
 .notif-panel-close{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:15px;padding:2px;border-radius:3px}
+.notif-panel-clear{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:11px;padding:3px 7px;border-radius:var(--radius);white-space:nowrap;font-family:inherit;transition:background .1s,color .1s}
+.notif-panel-clear:hover{background:var(--surface3);color:var(--red)}
 .notif-panel-close:hover{color:var(--text-primary)}
 .notif-list{flex:1;overflow-y:auto;padding:8px}
 .notif-item{display:flex;gap:10px;padding:9px 10px;border-radius:var(--radius-lg);cursor:pointer;transition:background .1s;margin-bottom:2px}
@@ -532,7 +570,7 @@ select option{background:#1C2130;color:#EDF0F7}
 <!-- ÉCRAN DE CONNEXION -->
 <div id="login-screen">
   <div class="login-card">
-    <div class="login-logo">A</div>
+    <div class="login-logo"><img src="icons/icon-192.png" alt="Logo"></div>
     <div class="login-title" id="login-title">Asso Manager</div>
     <div class="login-sub">Sélectionnez votre profil pour vous connecter</div>
     <div class="login-profiles" id="login-profiles"></div>
@@ -550,7 +588,7 @@ select option{background:#1C2130;color:#EDF0F7}
 <!-- TOPBAR -->
 <div class="topbar">
   <button id="mobile-menu-btn" onclick="toggleMobileMenu()" style="display:none;background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0 4px;line-height:1">☰</button>
-  <div class="topbar-logo">A</div>
+  <div class="topbar-logo"><img src="icons/icon-192.png" alt="Logo"></div>
   <span class="topbar-title">Asso Manager</span>
   <div class="topbar-sep"></div>
   <div class="search-wrap">
@@ -625,6 +663,9 @@ select option{background:#1C2130;color:#EDF0F7}
     </div>
     <div class="sidebar-item" onclick="setView('bycat',this)">
       <span class="sidebar-icon">🗃</span><span class="sidebar-label">Par catégorie</span>
+    </div>
+    <div class="sidebar-item" onclick="setView('events',this)">
+      <span class="sidebar-icon">🎉</span><span class="sidebar-label">Calendrier</span>
     </div>
     <div class="sidebar-item" onclick="setView('kanban',this)">
       <span class="sidebar-icon">🗂</span><span class="sidebar-label">Kanban Ma journée</span>
@@ -731,6 +772,32 @@ select option{background:#1C2130;color:#EDF0F7}
   </div>
 </div>
 
+<!-- MODAL ÉVÉNEMENT -->
+<div class="modal-bg" id="event-modal" style="display:none" onclick="if(event.target===this)closeEventModal()">
+  <div class="modal">
+    <h3 id="event-modal-title">Nouvel événement</h3>
+    <div class="modal-field"><label class="modal-label">Titre</label>
+      <input class="modal-inp" id="event-inp-title" placeholder="Ex: Assemblée générale" maxlength="80"></div>
+    <div class="modal-2col">
+      <div class="modal-field"><label class="modal-label">Date</label>
+        <input class="modal-inp" id="event-inp-date" type="date"></div>
+      <div class="modal-field"><label class="modal-label">Heure (optionnel)</label>
+        <input class="modal-inp" id="event-inp-time" type="time"></div>
+    </div>
+    <div class="modal-field"><label class="modal-label">Lieu</label>
+      <input class="modal-inp" id="event-inp-location" placeholder="Ex: Salle des fêtes" maxlength="80"></div>
+    <div class="modal-field"><label class="modal-label">Catégorie</label>
+      <select class="modal-inp" id="event-inp-cat"></select></div>
+    <div class="modal-field"><label class="modal-label">Description</label>
+      <textarea class="modal-inp" id="event-inp-desc" rows="3" style="resize:vertical" placeholder="Détails, ordre du jour…"></textarea></div>
+    <div class="modal-row">
+      <button class="modal-btn danger" id="event-delete-btn" onclick="deleteEvent()" style="display:none;margin-right:auto">🗑 Supprimer</button>
+      <button class="modal-btn" onclick="closeEventModal()">Annuler</button>
+      <button class="modal-btn primary" onclick="saveEvent()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- /#app-root -->
 
 <script>
@@ -792,12 +859,19 @@ const APP_CONFIG = {
   assoName: 'Notre Association', // ← Personnalisez le nom de votre association ici
   userName: 'Membre du bureau',
   userInitials: '—',
-  supabaseUrl: 'https://ebywvmbnhxzqzgqqhxip.supabase.co',
-  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVieXd2bWJuaHh6cXpncXFoeGlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MjczNjMsImV4cCI6MjA5ODUwMzM2M30.ybkcdMSdNQNJYnVrV1WQfDTOyaKiirtdtKEn2yB4F0I',
+  supabaseUrl: 'https://qfetdpekyzpmdfrmvgkg.supabase.co',
+  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZXRkcGVreXpwbWRmcm12Z2tnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1ODQ5ODYsImV4cCI6MjEwNTE2MDk4Nn0.J8aHte88wNmJKPq26y-59GW1vpMJOe5zGS2NMEyMOmc',
   useSupabase: true,
   claudeApiKey: '', // Clé retirée du code — gérée via Supabase Edge Function
-  claudeProxyUrl: 'https://ebywvmbnhxzqzgqqhxip.supabase.co/functions/v1/claude-proxy',
+  claudeProxyUrl: 'https://qfetdpekyzpmdfrmvgkg.supabase.co/functions/v1/claude-proxy',
   useClaudeAI: false, // ← passera à true une fois la fonction claude-proxy recréée sur ce nouveau projet
+  // ── Notifications push ──
+  // Clé publique VAPID (sans danger à exposer côté client). La clé PRIVÉE ne
+  // doit JAMAIS être mise ici : elle reste uniquement dans les secrets de la
+  // fonction Supabase "send-push". Voir le guide de déploiement fourni.
+  vapidPublicKey: 'BPGw7Pu-KR07_Dakl4kV5ff9JkNy6_cCWpAKxKTVhvvZsi18B0ggPqNyaqoMMW6JGTqW1_JJljIqlzms01b_2Dw',
+  pushProxyUrl: 'https://qfetdpekyzpmdfrmvgkg.supabase.co/functions/v1/send-push',
+  usePush: true, // ← passer à false si vous ne voulez pas activer les notifications push
 };
 
 // ── AUTHENTIFICATION (3 membres du bureau) ──
@@ -901,6 +975,7 @@ function enterApp(user){
   document.getElementById('um-role').textContent = user.role;
   const respList = document.getElementById('resp-datalist');
   if(respList) respList.innerHTML = ASSO_USERS.map(u=>`<option value="${esc(u.name)}">`).join('');
+  updateNotifBtnState();
   startApp();
 }
 
@@ -938,6 +1013,11 @@ const DEFAULT_TPLS=[
 ];
 let templates=JSON.parse(localStorage.getItem('raf_tpls')||'null')||DEFAULT_TPLS.map(t=>({...t}));
 let notifications=JSON.parse(localStorage.getItem('raf_notifs')||'[]');
+let events=JSON.parse(localStorage.getItem('raf_events')||'[]');
+function saveEventsLocal(){localStorage.setItem('raf_events',JSON.stringify(events))}
+function mapDbEvent(e){
+  return { id:e.id, title:e.title, date:e.event_date, time:e.event_time||'', location:e.location||'', cat:e.category||'Divers', desc:e.description||'', createdBy:e.created_by||'' };
+}
 
 let currentView='dash';
 let newTaskDue=null; // Date sélectionnée pour la nouvelle tâche
@@ -968,6 +1048,18 @@ function getSupabase(){
   return _sb;
 }
 
+// Convertit une ligne brute de la table "tasks" au format utilisé par l'app
+function mapDbTask(t){
+  return {
+    id: t.id, title: t.title, due: t.due_date||todayStr(),
+    time: parseFloat(t.time_est)||1, cat: t.category||'Divers',
+    prio: t.priority||'moyenne', status: t.status||'todo',
+    resp: t.responsible||'', comments: t.comments||'',
+    starred: t.starred||false, myjour: t.myjour||false,
+    recur: t.recurrence||''
+  };
+}
+
 async function syncAll(){
   let sb;
   try { sb = getSupabase(); }
@@ -977,16 +1069,7 @@ async function syncAll(){
     // Tâches
     const {data:tdata, error:te} = await sb.from('tasks').select('*').order('created_at',{ascending:false});
     if(te) throw te;
-    if(tdata) {
-      tasks = tdata.map(t=>({
-        id: t.id, title: t.title, due: t.due_date||todayStr(),
-        time: parseFloat(t.time_est)||1, cat: t.category||'Divers',
-        prio: t.priority||'moyenne', status: t.status||'todo',
-        resp: t.responsible||'', comments: t.comments||'',
-        starred: t.starred||false, myjour: t.myjour||false,
-        recur: t.recurrence||''
-      }));
-    }
+    if(tdata) tasks = tdata.map(mapDbTask);
     // Catégories
     const {data:cdata} = await sb.from('categories').select('*').order('position');
     if(cdata && cdata.length) cats = cdata.map(c=>({name:c.name, icon:c.icon}));
@@ -996,6 +1079,12 @@ async function syncAll(){
     // Notifications
     const {data:ndata} = await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(30);
     if(ndata) notifications = ndata.map(n=>({id:n.id,icon:n.icon,title:n.title,sub:n.sub,type:n.type,read:n.read,time:new Date(n.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}));
+    // Événements (table indépendante : ne bloque pas le reste si absente)
+    try {
+      const {data:edata, error:ee} = await sb.from('events').select('*').order('event_date');
+      if(ee) throw ee;
+      if(edata) events = edata.map(mapDbEvent);
+    } catch(evErr){ console.warn('[Supabase] Table "events" indisponible (migration à exécuter ?):', evErr.message||evErr); }
     console.log('[Supabase] Sync OK —', tasks.length, 'tâches');
   } catch(e){
     console.error('[Supabase] Sync error:', e);
@@ -1003,6 +1092,7 @@ async function syncAll(){
   } finally {
     // Toujours afficher l'interface, même si la synchro a échoué
     renderMain(); updateCounts(); renderSidebarCats();
+    subscribeRealtime();
   }
 }
 
@@ -1063,6 +1153,84 @@ async function upsertNotif(n){
   catch(e){}
 }
 
+// ── TEMPS RÉEL (Supabase Realtime) ──
+// Diffuse instantanément les changements faits par un membre du bureau
+// aux autres membres connectés, sans qu'ils aient besoin de revenir sur l'app.
+let _realtimeChannel = null;
+function subscribeRealtime(){
+  const sb = getSupabase();
+  if(!sb || _realtimeChannel) return;
+  try {
+    _realtimeChannel = sb.channel('asso-realtime')
+      .on('postgres_changes', {event:'*', schema:'public', table:'tasks'}, handleRealtimeTask)
+      .on('postgres_changes', {event:'*', schema:'public', table:'events'}, handleRealtimeEvent)
+      .on('postgres_changes', {event:'INSERT', schema:'public', table:'notifications'}, handleRealtimeNotif)
+      .on('postgres_changes', {event:'*', schema:'public', table:'categories'}, ()=>{ syncAll(); })
+      .subscribe(status=>{ console.log('[Realtime] statut:', status); });
+  } catch(e){ console.warn('[Realtime] indisponible:', e); }
+}
+
+function handleRealtimeTask(payload){
+  if(!CURRENT_USER) return;
+  if(payload.eventType==='INSERT'){
+    if(!tasks.some(t=>String(t.id)===String(payload.new.id))) tasks.unshift(mapDbTask(payload.new));
+  } else if(payload.eventType==='UPDATE'){
+    const idx=tasks.findIndex(t=>String(t.id)===String(payload.new.id));
+    if(idx>=0) tasks[idx]=mapDbTask(payload.new); else tasks.unshift(mapDbTask(payload.new));
+  } else if(payload.eventType==='DELETE'){
+    tasks=tasks.filter(t=>String(t.id)!==String(payload.old.id));
+    if(String(selectedId)===String(payload.old.id)){ selectedId=null; closeDetail(); }
+  }
+  localStorage.setItem('raf_v5', JSON.stringify(tasks));
+  renderMain(); updateCounts(); renderSidebarCats();
+}
+
+function handleRealtimeEvent(payload){
+  if(!CURRENT_USER) return;
+  if(payload.eventType==='INSERT'){
+    if(!events.some(e=>String(e.id)===String(payload.new.id))) events.push(mapDbEvent(payload.new));
+  } else if(payload.eventType==='UPDATE'){
+    const idx=events.findIndex(e=>String(e.id)===String(payload.new.id));
+    if(idx>=0) events[idx]=mapDbEvent(payload.new); else events.push(mapDbEvent(payload.new));
+  } else if(payload.eventType==='DELETE'){
+    events=events.filter(e=>String(e.id)!==String(payload.old.id));
+  }
+  saveEventsLocal();
+  if(currentView==='events') renderMain();
+}
+
+function handleRealtimeNotif(payload){
+  if(!CURRENT_USER) return;
+  const n=payload.new;
+  const notif={id:n.id,icon:n.icon,title:n.title,sub:n.sub,type:n.type,read:n.read,time:new Date(n.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})};
+  if(notifications.some(x=>String(x.id)===String(notif.id))) return;
+  notifications.unshift(notif);
+  if(notifications.length>30) notifications=notifications.slice(0,30);
+  saveNotifs();
+  updateNotifDot();
+  showToast(`${notif.icon} ${notif.title}`);
+}
+
+// ── ÉVÉNEMENTS (calendrier de l'association) ──
+async function upsertEvent(e){
+  saveEventsLocal();
+  const sb=getSupabase(); if(!sb) return;
+  try {
+    const payload={ title:e.title, event_date:e.date, event_time:e.time||null, location:e.location||'', category:e.cat||'Divers', description:e.desc||'', created_by:e.createdBy||APP_CONFIG.userName };
+    if(e.id && typeof e.id==='string' && e.id.includes('-')) payload.id=e.id;
+    const {data,error}=await sb.from('events').upsert(payload).select();
+    if(error){ console.error('[Supabase] upsertEvent error:', error); return; }
+    if(data && data[0] && typeof e.id==='number'){
+      const idx=events.findIndex(x=>x.id===e.id);
+      if(idx>=0){ events[idx].id=data[0].id; saveEventsLocal(); }
+    }
+  } catch(err){ console.error('[Supabase] upsertEvent error:', err); }
+}
+async function deleteEventRemote(id){
+  const sb=getSupabase(); if(!sb) return;
+  try { await sb.from('events').delete().eq('id',id); } catch(e){ console.error('[Supabase] deleteEvent error:', e); }
+}
+
 
 function saveCats(){localStorage.setItem('raf_cats',JSON.stringify(cats))}
 function saveTpls(){localStorage.setItem('raf_tpls',JSON.stringify(templates))}
@@ -1077,11 +1245,11 @@ function recurLbl(r){return{daily:'Quotidien',weekly:'Hebdo',monthly:'Mensuel',q
 function dueHTML(due,done){
   if(done)return'';
   const dl=daysLeft(due);
-  if(dl<0)return`<span class="task-due overdue">⚠ Retard ${Math.abs(dl)}j</span>`;
-  if(dl===0)return`<span class="task-due overdue">📅 Aujourd'hui</span>`;
-  if(dl===1)return`<span class="task-due soon">📅 Demain</span>`;
-  if(dl<=3)return`<span class="task-due soon">📅 ${fmtD(due)}</span>`;
-  return`<span class="task-due">📅 ${fmtD(due)}</span>`;
+  if(dl<0)return`<span class="task-due task-due-date overdue">⚠ Retard ${Math.abs(dl)}j</span>`;
+  if(dl===0)return`<span class="task-due task-due-date overdue">📅 Aujourd'hui</span>`;
+  if(dl===1)return`<span class="task-due task-due-date soon">📅 Demain</span>`;
+  if(dl<=3)return`<span class="task-due task-due-date soon">📅 ${fmtD(due)}</span>`;
+  return`<span class="task-due task-due-date">📅 ${fmtD(due)}</span>`;
 }
 function hl(text){
   if(!searchQuery)return text;
@@ -1115,6 +1283,7 @@ function addNotif(icon,title,sub,type='info'){
   if(notifications.length>30)notifications=notifications.slice(0,30);
   saveNotifs();
   updateNotifDot();
+  sendPushNotification({title:icon+' '+title, body:sub||''});
 }
 function updateNotifDot(){
   const dot=document.getElementById('notif-dot');
@@ -1129,6 +1298,7 @@ function toggleNotifPanel(){
     wrap.innerHTML=`<div class="notif-panel">
       <div class="notif-panel-hdr">
         <span class="notif-panel-title">Notifications</span>
+        ${notifications.length?'<button class="notif-panel-clear" onclick="clearAllNotifs()" title="Tout effacer">🗑 Tout effacer</button>':''}
         <button class="notif-panel-close" onclick="toggleNotifPanel()">✕</button>
       </div>
       <div class="notif-list">${notifications.length?notifications.map(n=>`
@@ -1146,8 +1316,25 @@ function toggleNotifPanel(){
   }
 }
 
+async function clearAllNotifs(){
+  if(!confirm('Effacer toutes les notifications pour tout le monde ?'))return;
+  notifications=[];
+  saveNotifs();
+  updateNotifDot();
+  toggleNotifPanel();toggleNotifPanel(); // re-render le panneau vide
+  const sb=getSupabase();
+  if(sb){ try{ await sb.from('notifications').delete().neq('id','00000000-0000-0000-0000-000000000000'); }catch(e){console.error('[Supabase] clearNotifs error:',e);} }
+  showToast('🗑 Notifications effacées');
+}
+
 // ── CHECK ALERTS (called on load) ──
 function checkAlerts(){
+  // Évite de spammer les mêmes alertes à chaque ouverture/rechargement de l'app :
+  // une seule vérification par jour suffit.
+  const todayKey=todayStr();
+  if(localStorage.getItem('raf_last_alert_check')===todayKey) return;
+  localStorage.setItem('raf_last_alert_check', todayKey);
+
   const open=tasks.filter(t=>t.status!=='done');
   const overdue=open.filter(t=>daysLeft(t.due)<0);
   const critical=open.filter(t=>daysLeft(t.due)===0&&t.prio==='critique');
@@ -1182,6 +1369,26 @@ function renderSidebarCats(){
 
 // ── CATEGORY MODAL ──
 let editingCat=null;
+async function upsertCategory(oldName,newName,icon,position){
+  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
+  if(!sb) return;
+  try {
+    if(oldName){
+      const {error}=await sb.from('categories').update({name:newName,icon}).eq('name',oldName);
+      if(error) console.error('[Supabase] upsertCategory (update) error:',error);
+    } else {
+      const {error}=await sb.from('categories').insert({name:newName,icon,position:position||0});
+      if(error) console.error('[Supabase] upsertCategory (insert) error:',error);
+    }
+  } catch(e){ console.error('[Supabase] upsertCategory error:',e); }
+}
+async function deleteCategoryRemote(name){
+  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
+  if(!sb) return;
+  try { await sb.from('categories').delete().eq('name',name); }
+  catch(e){ console.error('[Supabase] deleteCategory error:',e); }
+}
+
 function openCatModal(name){
   editingCat=name;
   document.getElementById('cat-modal-title').textContent=name?'Modifier la catégorie':'Nouvelle catégorie';
@@ -1197,14 +1404,23 @@ function saveCat(){
   const name=document.getElementById('cat-inp-name').value.trim();
   const icon=document.getElementById('cat-inp-icon').value.trim()||'📁';
   if(!name)return;
+  const oldName=editingCat;
+  let renamedTasks=[];
   if(editingCat){
     const idx=cats.findIndex(c=>c.name===editingCat);
-    if(idx>=0){if(name!==editingCat)tasks.forEach(t=>{if(t.cat===editingCat)t.cat=name});cats[idx]={name,icon};}
+    if(idx>=0){
+      if(name!==editingCat){
+        tasks.forEach(t=>{if(t.cat===editingCat){t.cat=name;renamedTasks.push(t);}});
+      }
+      cats[idx]={name,icon};
+    }
   } else {
     if(cats.find(c=>c.name===name)){alert('Cette catégorie existe déjà.');return}
     cats.push({name,icon});
   }
-  saveCats();save();closeCatModal();renderSidebarCats();renderMain();updateCounts();
+  saveCats();localStorage.setItem('raf_v5',JSON.stringify(tasks));closeCatModal();renderSidebarCats();renderMain();updateCounts();
+  upsertCategory(oldName,name,icon,cats.length-1);
+  if(APP_CONFIG.useSupabase) renamedTasks.forEach(t=>upsertTask(t));
   const sel=document.getElementById('detail-cat');
   if(sel&&selectedId){const t=tasks.find(x=>x.id===selectedId);sel.innerHTML=catOpts(t?t.cat:'')}
 }
@@ -1212,11 +1428,14 @@ function deleteCat(){
   if(!editingCat)return;
   const used=tasks.filter(t=>t.cat===editingCat).length;
   if(used>0&&!confirm(`${used} tâche(s) seront réaffectées à "Divers". Continuer ?`))return;
-  tasks.forEach(t=>{if(t.cat===editingCat)t.cat='Divers'});
+  const reassigned=[];
+  tasks.forEach(t=>{if(t.cat===editingCat){t.cat='Divers';reassigned.push(t);}});
   cats=cats.filter(c=>c.name!==editingCat);
-  saveCats();save();closeCatModal();
+  saveCats();localStorage.setItem('raf_v5',JSON.stringify(tasks));closeCatModal();
   if(currentView==='cat-'+editingCat)currentView='all';
   renderSidebarCats();renderMain();updateCounts();
+  deleteCategoryRemote(editingCat);
+  if(APP_CONFIG.useSupabase) reassigned.forEach(t=>upsertTask(t));
 }
 
 // ── TEMPLATE MODAL ──
@@ -1298,13 +1517,13 @@ function taskHTML(t){
         <span class="${chipCls(t.prio)}">${prioLbl(t.prio)}</span>
         <span class="chip chip-cat">${catIcon(t.cat)} ${t.cat}</span>
         ${dueTag}
-        ${t.time?`<span class="task-due">⏱ ${t.time}h</span>`:''}
+        ${t.time?`<span class="task-due task-time">⏱ ${t.time}h</span>`:''}
         ${t.recur?`<span class="chip chip-recur">🔁 ${recurLbl(t.recur)}</span>`:''}
         ${t.myjour&&currentView!=='myjour'?'<span class="myjour-tag">☀️</span>':''}
       </div>
     </div>
     <div class="task-right">
-      ${t.resp?`<span class="task-due" style="font-size:11px">👤 ${t.resp}</span>`:''}
+      ${t.resp?`<span class="task-due task-resp" style="font-size:11px">👤 ${t.resp}</span>`:''}
       ${t.status!=='done'?`<div class="score-badge ${scCls(s)}">${s}</div>`:''}
       <button class="mj-btn ${t.myjour?'mj-active':''}" data-tid="${t.id}" onclick="event.stopPropagation();toggleMJ(this.dataset.tid)">${t.myjour?'☀️':'☀'}</button>
       <button class="star-btn ${t.starred?'starred':''}" data-tid="${t.id}" onclick="event.stopPropagation();toggleStar(this.dataset.tid)">★</button>
@@ -1321,6 +1540,7 @@ function renderMain(){
   if(currentView==='kanban'){renderKanban(el);return}
   if(currentView==='month'){renderMonthView(el);return}
   if(currentView==='bycat'){renderByCategory(el);return}
+  if(currentView==='events'){renderEventsCalendar(el);return}
   if(currentView==='ai'){renderAIPage(el);return}
 
   const isSearch=!!searchQuery;
@@ -1450,7 +1670,7 @@ function renderDashboard(el){
       </div>
     </div>
     <div class="dash-wrap">
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px">
+      <div class="dash-top-metrics">
         <div class="metric-card" onclick="setView('overdue',null)" style="cursor:pointer"><div class="metric-val mv-red">${overdue.length}</div><div class="metric-lbl">En retard</div></div>
         <div class="metric-card" onclick="setView('myjour',null)" style="cursor:pointer"><div class="metric-val mv-orange">${today2.length}</div><div class="metric-lbl">Aujourd'hui</div></div>
         <div class="metric-card"><div class="metric-val mv-blue">${week.length}</div><div class="metric-lbl">Cette semaine</div></div>
@@ -1940,6 +2160,137 @@ function renderByCategory(el){
       <button class="filter-chip ${showDone?'active':''}" onclick="showDone=!showDone;renderMain()">✓ Terminées</button>
     </div>
     <div class="kanban-wrap"><div class="kanban-grid">${colsHTML}</div></div>`;
+}
+
+// ── CALENDRIER D'ÉVÉNEMENTS ──
+let eventsMonthOffset=0;
+let selectedEventDay=null;
+function renderEventsCalendar(el){
+  const base=new Date(TODAY.getFullYear(),TODAY.getMonth()+eventsMonthOffset,1);
+  const year=base.getFullYear(),month=base.getMonth();
+  let monthLabel=base.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  monthLabel=monthLabel.charAt(0).toUpperCase()+monthLabel.slice(1);
+  const firstDow=(new Date(year,month,1).getDay()+6)%7;
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const daysInPrevMonth=new Date(year,month,0).getDate();
+  const totalCells=Math.ceil((firstDow+daysInMonth)/7)*7;
+
+  if(!selectedEventDay || eventsMonthOffset!==0) {
+    // Par défaut, sélectionne aujourd'hui si on est sur le mois courant
+  }
+  const todayS=todayStr();
+  if(!selectedEventDay) selectedEventDay=todayS;
+
+  let cellsHTML='';
+  for(let i=0;i<totalCells;i++){
+    const dayNum=i-firstDow+1;
+    let cellDate,inMonth;
+    if(dayNum<1){ cellDate=new Date(year,month-1,daysInPrevMonth+dayNum); inMonth=false; }
+    else if(dayNum>daysInMonth){ cellDate=new Date(year,month+1,dayNum-daysInMonth); inMonth=false; }
+    else{ cellDate=new Date(year,month,dayNum); inMonth=true; }
+    cellDate.setHours(12,0,0,0);
+    const ds=cellDate.getFullYear()+'-'+String(cellDate.getMonth()+1).padStart(2,'0')+'-'+String(cellDate.getDate()).padStart(2,'0');
+    const isToday=ds===todayS;
+    const isSel=ds===selectedEventDay;
+    const dayEvents=events.filter(e=>e.date===ds);
+    const dots=dayEvents.slice(0,3).map(e=>`<span class="ev-dot" style="background:${catColor(e.cat)}"></span>`).join('');
+    cellsHTML+=`<div class="ev-cell ${inMonth?'':'out-month'} ${isToday?'today':''} ${isSel?'selected':''}" onclick="selectEventDay('${ds}')">
+      <span class="ev-cell-num">${cellDate.getDate()}</span>
+      <div class="ev-cell-dots">${dots}</div>
+    </div>`;
+  }
+
+  const dayEvents=events.filter(e=>e.date===selectedEventDay).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const dayLabel=(()=>{const d=new Date(selectedEventDay+'T12:00');let l=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});return l.charAt(0).toUpperCase()+l.slice(1);})();
+  const dayEventsHTML=dayEvents.length?dayEvents.map(e=>`
+    <div class="ev-item" onclick="openEventModal('${e.id}')">
+      <div class="ev-item-dot" style="background:${catColor(e.cat)}"></div>
+      <div class="ev-item-body">
+        <div class="ev-item-title">${esc(e.title)}</div>
+        <div class="ev-item-meta">${e.time?`🕐 ${esc(e.time)}`:'Toute la journée'}${e.location?` · 📍 ${esc(e.location)}`:''}</div>
+      </div>
+    </div>`).join(''):`<div class="empty-state" style="padding:24px 12px"><div class="empty-icon">🎉</div><div class="empty-title">Aucun événement ce jour</div></div>`;
+
+  el.innerHTML=`
+    <div class="main-header">
+      <div class="main-header-top"><div>
+        <div class="main-title">Calendrier</div>
+        <div class="main-subtitle">Événements et dates clés de l'association</div>
+      </div>
+      <div class="main-actions"><button class="btn-icon" onclick="openEventModal(null)" title="Nouvel événement" style="color:var(--accent)">＋</button></div></div>
+    </div>
+    <div class="plan-nav">
+      <button class="plan-nav-btn" onclick="eventsMonthOffset--;renderMain()">◀ Mois préc.</button>
+      <button class="plan-nav-btn" onclick="eventsMonthOffset=0;selectedEventDay=todayStr();renderMain()">Aujourd'hui</button>
+      <span class="plan-range">${monthLabel}</span>
+      <button class="plan-nav-btn" onclick="eventsMonthOffset++;renderMain()">Mois suiv. ▶</button>
+    </div>
+    <div class="ev-wrap">
+      <div class="ev-weekdays"><div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div></div>
+      <div class="ev-grid">${cellsHTML}</div>
+      <div class="ev-day-panel">
+        <div class="ev-day-hdr">
+          <span>${dayLabel}</span>
+          <button class="modal-btn primary" style="padding:5px 12px;font-size:12px" onclick="openEventModal(null,'${selectedEventDay}')">＋ Ajouter</button>
+        </div>
+        ${dayEventsHTML}
+      </div>
+    </div>`;
+}
+function catColor(catName){
+  const idx=cats.findIndex(c=>c.name===catName);
+  const palette=['#4F8EF7','#F59E0B','#A78BFA','#10B981','#F05252','#22D3EE','#EC4899','#84CC16','#F97316','#8892A4'];
+  return palette[idx>=0?idx%palette.length:9];
+}
+function selectEventDay(ds){ selectedEventDay=ds; renderMain(); }
+
+let editingEventId=null;
+function openEventModal(id,presetDate){
+  editingEventId=id;
+  const ev=id?events.find(e=>String(e.id)===String(id)):null;
+  document.getElementById('event-modal-title').textContent=ev?'Modifier l\'événement':'Nouvel événement';
+  document.getElementById('event-inp-title').value=ev?ev.title:'';
+  document.getElementById('event-inp-date').value=ev?ev.date:(presetDate||selectedEventDay||todayStr());
+  document.getElementById('event-inp-time').value=ev?ev.time:'';
+  document.getElementById('event-inp-location').value=ev?ev.location:'';
+  document.getElementById('event-inp-cat').innerHTML=catOpts(ev?ev.cat:cats[0]?.name);
+  document.getElementById('event-inp-desc').value=ev?ev.desc:'';
+  document.getElementById('event-delete-btn').style.display=ev?'inline-block':'none';
+  document.getElementById('event-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('event-inp-title').focus(),50);
+}
+function closeEventModal(){ document.getElementById('event-modal').style.display='none'; editingEventId=null; }
+function saveEvent(){
+  const title=document.getElementById('event-inp-title').value.trim();
+  if(!title){ showToast('⚠️ Le titre est obligatoire'); return; }
+  const date=document.getElementById('event-inp-date').value||todayStr();
+  const time=document.getElementById('event-inp-time').value;
+  const location=document.getElementById('event-inp-location').value.trim();
+  const cat=document.getElementById('event-inp-cat').value;
+  const desc=document.getElementById('event-inp-desc').value.trim();
+  if(editingEventId){
+    const ev=events.find(e=>String(e.id)===String(editingEventId));
+    if(ev){ Object.assign(ev,{title,date,time,location,cat,desc}); upsertEvent(ev); }
+  } else {
+    const ev={id:Date.now(),title,date,time,location,cat,desc,createdBy:APP_CONFIG.userName};
+    events.push(ev);
+    upsertEvent(ev);
+    sendPushNotification({title:'🎉 Nouvel événement', body:title+' — '+fmtFull(date)});
+  }
+  selectedEventDay=date;
+  closeEventModal();
+  renderMain();
+  showToast('🎉 Événement enregistré');
+}
+function deleteEvent(){
+  if(!editingEventId)return;
+  if(!confirm('Supprimer cet événement ?'))return;
+  deleteEventRemote(editingEventId);
+  events=events.filter(e=>String(e.id)!==String(editingEventId));
+  saveEventsLocal();
+  closeEventModal();
+  renderMain();
+  showToast('🗑 Événement supprimé');
 }
 
 // ── AI PAGE ──
@@ -2498,8 +2849,14 @@ function updateDetail(f,v){
     document.getElementById('detail-due').value=next;
     v=next;
   }
+  const oldResp=t.resp;
   t[f]=v;
   save(t);
+  // Notifie la personne nouvellement assignée (si différente de l'ancienne et de soi-même)
+  if(f==='resp' && v && v!==oldResp && v!==APP_CONFIG.userName){
+    const target=ASSO_USERS.find(u=>u.name===v);
+    if(target) sendPushNotification({title:'📌 Nouvelle tâche assignée', body:t.title, targetUserId:target.id});
+  }
   // Ne pas re-render si c'est juste une modification de champ texte (évite le clignotement)
   if(f==='title'||f==='comments'){
     updateCounts();
@@ -2544,6 +2901,15 @@ document.addEventListener('keydown',e=>{
   if(e.key==='a'||e.key==='A')setView('ai',null);
 });
 
+
+// ── BLOCAGE DU PINCEMENT-ZOOM ──
+// Safari iOS ignore volontairement "user-scalable=no" dans la balise <meta>
+// (choix d'Apple pour l'accessibilité). Il faut donc intercepter le geste
+// de pincement directement, comme le font les vraies apps natives.
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('gesturechange', e => e.preventDefault());
+document.addEventListener('gestureend', e => e.preventDefault());
+document.addEventListener('touchmove', e => { if(e.touches.length > 1) e.preventDefault(); }, { passive:false });
 
 // ── PWA : Service Worker + Install prompt ──
 let pwaInstallPrompt=null;
@@ -2593,23 +2959,102 @@ function installPWA(){
   });
 }
 
-// Demander permission notifications
-function requestNotifPermission(){
-  if(!('Notification' in window)){showToast('❌ Notifications non supportées');return;}
-  Notification.requestPermission().then(perm=>{
-    if(perm==='granted'){
-      showToast('🔔 Notifications activées !');
-      // Envoyer une notification de test
-      setTimeout(()=>{
-        new Notification('Asso Manager',{
-          body:'Les notifications sont activées ✓',
-          icon:'icons/icon-192.png'
-        });
-      },500);
+// ── NOTIFICATIONS PUSH (comme une vraie app) ──
+function urlBase64ToUint8Array(base64String){
+  const padding='='.repeat((4-base64String.length%4)%4);
+  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  const raw=atob(base64);
+  return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)));
+}
+
+async function requestNotifPermission(){
+  if(!('Notification' in window)){showToast('❌ 1/4 Notifications non supportées sur ce navigateur');return;}
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+    showToast('❌ 1/4 Push non supporté (app installée sur l\'écran d\'accueil ?)');return;
+  }
+  showToast('⏳ 1/4 Demande de permission…', 2500);
+  const perm=await Notification.requestPermission();
+  if(perm!=='granted'){ showToast('❌ 1/4 Notifications refusées dans les réglages'); return; }
+  try {
+    showToast('⏳ 2/4 Connexion au service worker…', 2500);
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub){
+      showToast('⏳ 3/4 Abonnement en cours…', 2500);
+      sub=await reg.pushManager.subscribe({
+        userVisibleOnly:true,
+        applicationServerKey:urlBase64ToUint8Array(APP_CONFIG.vapidPublicKey)
+      });
     } else {
-      showToast('❌ Notifications refusées');
+      showToast('✓ 3/4 Abonnement déjà existant', 2000);
     }
-  });
+    showToast('⏳ 4/4 Enregistrement sur le serveur…', 2500);
+    const ok=await saveSubscription(sub);
+    if(ok){
+      showToast('🔔 Notifications activées !');
+      updateNotifBtnState(true);
+    } else {
+      updateNotifBtnState(false);
+    }
+  } catch(e){
+    console.error('[Push] Erreur abonnement:', e);
+    showToast('❌ Erreur à l\'étape 3 : '+(e.name||'')+' '+(e.message||e), 6000);
+  }
+}
+
+async function saveSubscription(sub){
+  const sb=getSupabase(); if(!sb || !CURRENT_USER) return false;
+  const j=sub.toJSON();
+  if(!j.endpoint || !j.keys || !j.keys.p256dh || !j.keys.auth){
+    console.error('[Push] Abonnement incomplet:', j);
+    showToast('❌ Abonnement push incomplet');
+    return false;
+  }
+  try {
+    const {error}=await sb.from('push_subscriptions').upsert({
+      user_id: CURRENT_USER.id,
+      endpoint: j.endpoint,
+      p256dh: j.keys.p256dh,
+      auth: j.keys.auth
+    }, { onConflict:'endpoint' });
+    if(error){
+      console.error('[Push] Erreur Supabase enregistrement abonnement:', error);
+      showToast('❌ Erreur serveur : '+(error.message||'abonnement non enregistré'));
+      return false;
+    }
+    console.log('[Push] Abonnement enregistré pour', CURRENT_USER.id);
+    return true;
+  } catch(e){
+    console.error('[Push] Erreur enregistrement abonnement:', e);
+    showToast('❌ Erreur réseau lors de l\'enregistrement');
+    return false;
+  }
+}
+
+async function updateNotifBtnState(forceOn){
+  const btn=document.getElementById('notif-perm-btn'); if(!btn) return;
+  let isOn=forceOn;
+  if(isOn===undefined && 'serviceWorker' in navigator){
+    try {
+      const reg=await navigator.serviceWorker.ready;
+      const sub=await reg.pushManager.getSubscription();
+      isOn=!!sub && Notification.permission==='granted';
+    } catch(e){ isOn=false; }
+  }
+  btn.style.color=isOn?'var(--accent)':'';
+  btn.title=isOn?'Notifications activées':'Activer les notifications';
+}
+
+// Envoie une notification push à tous les membres du bureau (ou un seul si targetUserId fourni)
+async function sendPushNotification({title,body,url,targetUserId}){
+  if(!APP_CONFIG.usePush || !APP_CONFIG.pushProxyUrl) return;
+  try {
+    await fetch(APP_CONFIG.pushProxyUrl,{
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+APP_CONFIG.supabaseKey },
+      body:JSON.stringify({title,body,url,targetUserId})
+    });
+  } catch(e){ console.warn('[Push] Envoi impossible (fonction non déployée ?):', e); }
 }
 
 // ── INIT ──
@@ -2630,6 +3075,29 @@ function startApp(){
 }
 
 checkSession();
+
+// ── RAFRAÎCHISSEMENT AUTOMATIQUE AU RETOUR SUR L'APP ──
+// Sur iPhone/Android, rouvrir une PWA depuis l'écran d'accueil ne recharge pas
+// la page (le système réaffiche juste l'app telle qu'elle était en mémoire).
+// On force donc une resynchronisation avec Supabase à chaque retour au premier
+// plan, pour ne jamais avoir besoin de fermer complètement l'app.
+let _lastAutoSync = Date.now();
+function autoResync(){
+  if(!CURRENT_USER || !APP_CONFIG.useSupabase) return;
+  // Évite de resynchroniser trop souvent (ex: plusieurs événements coup sur coup)
+  if(Date.now() - _lastAutoSync < 4000) return;
+  // Ne pas interrompre une saisie en cours (champ de texte actif)
+  const activeTag = document.activeElement && document.activeElement.tagName;
+  if(activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
+  _lastAutoSync = Date.now();
+  syncAll();
+}
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible') autoResync();
+});
+window.addEventListener('pageshow', () => autoResync());
+window.addEventListener('focus', () => autoResync());
+
 </script>
 </body>
 </html>
