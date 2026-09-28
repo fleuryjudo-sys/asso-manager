@@ -42,7 +42,8 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 
 /* ── TOPBAR ── */
 .topbar{height:var(--topbar-h);background:var(--sidebar-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:env(safe-area-inset-top) 16px 0;gap:10px;flex-shrink:0}
-.topbar-logo{width:28px;height:28px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.topbar-logo{width:28px;height:28px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff}
+.topbar-logo img{width:100%;height:100%;object-fit:cover}
 .topbar-title{font-size:13px;font-weight:600;color:var(--text-primary);letter-spacing:.2px}
 .topbar-sep{flex:1}
 .search-wrap{position:relative;flex:1;max-width:320px}
@@ -64,7 +65,8 @@ body{font-family:'Inter',-apple-system,sans-serif;font-size:14px;background:var(
 /* ── LOGIN SCREEN ── */
 #login-screen{position:fixed;inset:0;background:radial-gradient(circle at 30% 20%,#1b2436 0%,var(--bg) 60%);z-index:1000;display:flex;align-items:center;justify-content:center;padding:calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom))}
 .login-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-xl);padding:28px 26px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
-.login-logo{width:44px;height:44px;background:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;margin:0 auto 14px}
+.login-logo{width:76px;height:76px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff;margin:0 auto 14px;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+.login-logo img{width:100%;height:100%;object-fit:cover}
 .login-title{text-align:center;font-size:17px;font-weight:600;color:var(--text-primary);margin-bottom:2px}
 .login-sub{text-align:center;font-size:12.5px;color:var(--text-muted);margin-bottom:20px}
 .login-profiles{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
@@ -568,7 +570,7 @@ select option{background:#1C2130;color:#EDF0F7}
 <!-- ÉCRAN DE CONNEXION -->
 <div id="login-screen">
   <div class="login-card">
-    <div class="login-logo">A</div>
+    <div class="login-logo"><img src="icons/icon-192.png" alt="Logo"></div>
     <div class="login-title" id="login-title">Asso Manager</div>
     <div class="login-sub">Sélectionnez votre profil pour vous connecter</div>
     <div class="login-profiles" id="login-profiles"></div>
@@ -586,7 +588,7 @@ select option{background:#1C2130;color:#EDF0F7}
 <!-- TOPBAR -->
 <div class="topbar">
   <button id="mobile-menu-btn" onclick="toggleMobileMenu()" style="display:none;background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0 4px;line-height:1">☰</button>
-  <div class="topbar-logo">A</div>
+  <div class="topbar-logo"><img src="icons/icon-192.png" alt="Logo"></div>
   <span class="topbar-title">Asso Manager</span>
   <div class="topbar-sep"></div>
   <div class="search-wrap">
@@ -857,18 +859,18 @@ const APP_CONFIG = {
   assoName: 'Notre Association', // ← Personnalisez le nom de votre association ici
   userName: 'Membre du bureau',
   userInitials: '—',
-  supabaseUrl: 'https://ebywvmbnhxzqzgqqhxip.supabase.co',
-  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVieXd2bWJuaHh6cXpncXFoeGlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MjczNjMsImV4cCI6MjA5ODUwMzM2M30.ybkcdMSdNQNJYnVrV1WQfDTOyaKiirtdtKEn2yB4F0I',
+  supabaseUrl: 'https://qfetdpekyfpmdfrmvgkg.supabase.co',
+  supabaseKey: 'sb_publishable_ow7cokiievRT_zH5drPbYA_MHti8l93',
   useSupabase: true,
   claudeApiKey: '', // Clé retirée du code — gérée via Supabase Edge Function
-  claudeProxyUrl: 'https://ebywvmbnhxzqzgqqhxip.supabase.co/functions/v1/claude-proxy',
+  claudeProxyUrl: 'https://qfetdpekyfpmdfrmvgkg.supabase.co/functions/v1/claude-proxy',
   useClaudeAI: false, // ← passera à true une fois la fonction claude-proxy recréée sur ce nouveau projet
   // ── Notifications push ──
   // Clé publique VAPID (sans danger à exposer côté client). La clé PRIVÉE ne
   // doit JAMAIS être mise ici : elle reste uniquement dans les secrets de la
   // fonction Supabase "send-push". Voir le guide de déploiement fourni.
   vapidPublicKey: 'BPGw7Pu-KR07_Dakl4kV5ff9JkNy6_cCWpAKxKTVhvvZsi18B0ggPqNyaqoMMW6JGTqW1_JJljIqlzms01b_2Dw',
-  pushProxyUrl: 'https://ebywvmbnhxzqzgqqhxip.supabase.co/functions/v1/send-push',
+  pushProxyUrl: 'https://qfetdpekyfpmdfrmvgkg.supabase.co/functions/v1/send-push',
   usePush: true, // ← passer à false si vous ne voulez pas activer les notifications push
 };
 
@@ -1367,6 +1369,26 @@ function renderSidebarCats(){
 
 // ── CATEGORY MODAL ──
 let editingCat=null;
+async function upsertCategory(oldName,newName,icon,position){
+  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
+  if(!sb) return;
+  try {
+    if(oldName){
+      const {error}=await sb.from('categories').update({name:newName,icon}).eq('name',oldName);
+      if(error) console.error('[Supabase] upsertCategory (update) error:',error);
+    } else {
+      const {error}=await sb.from('categories').insert({name:newName,icon,position:position||0});
+      if(error) console.error('[Supabase] upsertCategory (insert) error:',error);
+    }
+  } catch(e){ console.error('[Supabase] upsertCategory error:',e); }
+}
+async function deleteCategoryRemote(name){
+  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
+  if(!sb) return;
+  try { await sb.from('categories').delete().eq('name',name); }
+  catch(e){ console.error('[Supabase] deleteCategory error:',e); }
+}
+
 function openCatModal(name){
   editingCat=name;
   document.getElementById('cat-modal-title').textContent=name?'Modifier la catégorie':'Nouvelle catégorie';
@@ -1382,14 +1404,23 @@ function saveCat(){
   const name=document.getElementById('cat-inp-name').value.trim();
   const icon=document.getElementById('cat-inp-icon').value.trim()||'📁';
   if(!name)return;
+  const oldName=editingCat;
+  let renamedTasks=[];
   if(editingCat){
     const idx=cats.findIndex(c=>c.name===editingCat);
-    if(idx>=0){if(name!==editingCat)tasks.forEach(t=>{if(t.cat===editingCat)t.cat=name});cats[idx]={name,icon};}
+    if(idx>=0){
+      if(name!==editingCat){
+        tasks.forEach(t=>{if(t.cat===editingCat){t.cat=name;renamedTasks.push(t);}});
+      }
+      cats[idx]={name,icon};
+    }
   } else {
     if(cats.find(c=>c.name===name)){alert('Cette catégorie existe déjà.');return}
     cats.push({name,icon});
   }
-  saveCats();save();closeCatModal();renderSidebarCats();renderMain();updateCounts();
+  saveCats();localStorage.setItem('raf_v5',JSON.stringify(tasks));closeCatModal();renderSidebarCats();renderMain();updateCounts();
+  upsertCategory(oldName,name,icon,cats.length-1);
+  if(APP_CONFIG.useSupabase) renamedTasks.forEach(t=>upsertTask(t));
   const sel=document.getElementById('detail-cat');
   if(sel&&selectedId){const t=tasks.find(x=>x.id===selectedId);sel.innerHTML=catOpts(t?t.cat:'')}
 }
@@ -1397,11 +1428,14 @@ function deleteCat(){
   if(!editingCat)return;
   const used=tasks.filter(t=>t.cat===editingCat).length;
   if(used>0&&!confirm(`${used} tâche(s) seront réaffectées à "Divers". Continuer ?`))return;
-  tasks.forEach(t=>{if(t.cat===editingCat)t.cat='Divers'});
+  const reassigned=[];
+  tasks.forEach(t=>{if(t.cat===editingCat){t.cat='Divers';reassigned.push(t);}});
   cats=cats.filter(c=>c.name!==editingCat);
-  saveCats();save();closeCatModal();
+  saveCats();localStorage.setItem('raf_v5',JSON.stringify(tasks));closeCatModal();
   if(currentView==='cat-'+editingCat)currentView='all';
   renderSidebarCats();renderMain();updateCounts();
+  deleteCategoryRemote(editingCat);
+  if(APP_CONFIG.useSupabase) reassigned.forEach(t=>upsertTask(t));
 }
 
 // ── TEMPLATE MODAL ──
@@ -2934,21 +2968,27 @@ function urlBase64ToUint8Array(base64String){
 }
 
 async function requestNotifPermission(){
-  if(!('Notification' in window)){showToast('❌ Notifications non supportées sur ce navigateur');return;}
+  if(!('Notification' in window)){showToast('❌ 1/4 Notifications non supportées sur ce navigateur');return;}
   if(!('serviceWorker' in navigator) || !('PushManager' in window)){
-    showToast('❌ Notifications push non supportées ici');return;
+    showToast('❌ 1/4 Push non supporté (app installée sur l\'écran d\'accueil ?)');return;
   }
+  showToast('⏳ 1/4 Demande de permission…', 2500);
   const perm=await Notification.requestPermission();
-  if(perm!=='granted'){ showToast('❌ Notifications refusées'); return; }
+  if(perm!=='granted'){ showToast('❌ 1/4 Notifications refusées dans les réglages'); return; }
   try {
+    showToast('⏳ 2/4 Connexion au service worker…', 2500);
     const reg=await navigator.serviceWorker.ready;
     let sub=await reg.pushManager.getSubscription();
     if(!sub){
+      showToast('⏳ 3/4 Abonnement en cours…', 2500);
       sub=await reg.pushManager.subscribe({
         userVisibleOnly:true,
         applicationServerKey:urlBase64ToUint8Array(APP_CONFIG.vapidPublicKey)
       });
+    } else {
+      showToast('✓ 3/4 Abonnement déjà existant', 2000);
     }
+    showToast('⏳ 4/4 Enregistrement sur le serveur…', 2500);
     const ok=await saveSubscription(sub);
     if(ok){
       showToast('🔔 Notifications activées !');
@@ -2958,7 +2998,7 @@ async function requestNotifPermission(){
     }
   } catch(e){
     console.error('[Push] Erreur abonnement:', e);
-    showToast('❌ Impossible d\'activer les notifications : '+(e.message||e));
+    showToast('❌ Erreur à l\'étape 3 : '+(e.name||'')+' '+(e.message||e), 6000);
   }
 }
 

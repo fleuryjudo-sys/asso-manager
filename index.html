@@ -1031,7 +1031,10 @@ let planOffset=0;
 let aiMsgs=[];
 let dragTaskId=null;
 let notifPanelOpen=false;
-let scheduleSlots=JSON.parse(localStorage.getItem('raf_sched')||'{}');Object.keys(scheduleSlots).forEach(k=>{scheduleSlots[k]=scheduleSlots[k].map(Number)});
+// Les id de tâches peuvent être des nombres (id local) OU des UUID Supabase (string) :
+// on les normalise toujours en string pour éviter des comparaisons cassées après
+// une synchro Supabase (Number(uuid) donnerait NaN et perdrait la tâche planifiée).
+let scheduleSlots=JSON.parse(localStorage.getItem('raf_sched')||'{}');Object.keys(scheduleSlots).forEach(k=>{scheduleSlots[k]=scheduleSlots[k].map(String)});
 function saveSchedule(){localStorage.setItem('raf_sched',JSON.stringify(scheduleSlots))}
 
 function save(changedTask){
@@ -1060,24 +1063,33 @@ function mapDbTask(t){
   };
 }
 
+// Empêche deux synchros de tourner en même temps (autoResync/Realtime/clic manuel
+// peuvent se déclencher au même instant) : sans ce verrou, deux appels concurrents
+// à syncAll() pourraient se chevaucher et provoquer un affichage incohérent.
+let isSyncing=false;
 async function syncAll(){
+  if(isSyncing) return;
+  isSyncing=true;
   let sb;
   try { sb = getSupabase(); }
   catch(e){ console.error('[Supabase] Client init error:', e); }
-  if(!sb){ renderMain(); updateCounts(); renderSidebarCats(); return; }
+  if(!sb){ renderMain(); updateCounts(); renderSidebarCats(); isSyncing=false; return; }
   try {
     // Tâches
     const {data:tdata, error:te} = await sb.from('tasks').select('*').order('created_at',{ascending:false});
     if(te) throw te;
     if(tdata) tasks = tdata.map(mapDbTask);
     // Catégories
-    const {data:cdata} = await sb.from('categories').select('*').order('position');
+    const {data:cdata, error:ce} = await sb.from('categories').select('*').order('position');
+    if(ce) console.error('[Supabase] Chargement catégories error:', ce);
     if(cdata && cdata.length) cats = cdata.map(c=>({name:c.name, icon:c.icon}));
     // Modèles
-    const {data:tpldata} = await sb.from('templates').select('*').order('created_at');
+    const {data:tpldata, error:tple} = await sb.from('templates').select('*').order('created_at');
+    if(tple) console.error('[Supabase] Chargement modèles error:', tple);
     if(tpldata) templates = tpldata.map(t=>({id:t.id,title:t.title,cat:t.category,prio:t.priority,time:t.time_est,recur:t.recurrence||'',comments:t.comments||''}));
     // Notifications
-    const {data:ndata} = await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(30);
+    const {data:ndata, error:ne} = await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(30);
+    if(ne) console.error('[Supabase] Chargement notifications error:', ne);
     if(ndata) notifications = ndata.map(n=>({id:n.id,icon:n.icon,title:n.title,sub:n.sub,type:n.type,read:n.read,time:new Date(n.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}));
     // Événements (table indépendante : ne bloque pas le reste si absente)
     try {
@@ -1090,6 +1102,7 @@ async function syncAll(){
     console.error('[Supabase] Sync error:', e);
     showToast('⚠️ Connexion au serveur impossible — données locales affichées');
   } finally {
+    isSyncing=false;
     // Toujours afficher l'interface, même si la synchro a échoué
     renderMain(); updateCounts(); renderSidebarCats();
     subscribeRealtime();
@@ -1097,7 +1110,8 @@ async function syncAll(){
 }
 
 async function upsertTask(t){
-  const sb=getSupabase(); if(!sb) return;
+  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
+  if(!sb) return;
   try {
     const payload = {
       title: t.title,
@@ -1142,15 +1156,23 @@ async function upsertTask(t){
 }
 
 async function deleteTaskRemote(id){
-  const sb=getSupabase(); if(!sb) return;
-  try { await sb.from('tasks').delete().eq('id',id); }
-  catch(e){ console.error('[Supabase] deleteTask error:', e); }
+  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
+  if(!sb) return;
+  try {
+    const {error}=await sb.from('tasks').delete().eq('id',id);
+    if(error){ console.error('[Supabase] deleteTask error:', error); showToast('⚠️ Suppression non synchronisée avec le serveur'); }
+  }
+  catch(e){ console.error('[Supabase] deleteTask error:', e); showToast('⚠️ Suppression non synchronisée avec le serveur'); }
 }
 
 async function upsertNotif(n){
-  const sb=getSupabase(); if(!sb) return;
-  try { await sb.from('notifications').insert({icon:n.icon,title:n.title,sub:n.sub,type:n.type}); }
-  catch(e){}
+  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
+  if(!sb) return;
+  try {
+    const {error}=await sb.from('notifications').insert({icon:n.icon,title:n.title,sub:n.sub,type:n.type});
+    if(error) console.error('[Supabase] upsertNotif error:', error);
+  }
+  catch(e){ console.error('[Supabase] upsertNotif error:', e); }
 }
 
 // ── TEMPS RÉEL (Supabase Realtime) ──
@@ -1158,7 +1180,7 @@ async function upsertNotif(n){
 // aux autres membres connectés, sans qu'ils aient besoin de revenir sur l'app.
 let _realtimeChannel = null;
 function subscribeRealtime(){
-  const sb = getSupabase();
+  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
   if(!sb || _realtimeChannel) return;
   try {
     _realtimeChannel = sb.channel('asso-realtime')
@@ -1214,7 +1236,8 @@ function handleRealtimeNotif(payload){
 // ── ÉVÉNEMENTS (calendrier de l'association) ──
 async function upsertEvent(e){
   saveEventsLocal();
-  const sb=getSupabase(); if(!sb) return;
+  let sb; try{ sb=getSupabase(); }catch(err){ console.error('[Supabase] client indisponible:',err); return; }
+  if(!sb) return;
   try {
     const payload={ title:e.title, event_date:e.date, event_time:e.time||null, location:e.location||'', category:e.cat||'Divers', description:e.desc||'', created_by:e.createdBy||APP_CONFIG.userName };
     if(e.id && typeof e.id==='string' && e.id.includes('-')) payload.id=e.id;
@@ -1227,8 +1250,12 @@ async function upsertEvent(e){
   } catch(err){ console.error('[Supabase] upsertEvent error:', err); }
 }
 async function deleteEventRemote(id){
-  const sb=getSupabase(); if(!sb) return;
-  try { await sb.from('events').delete().eq('id',id); } catch(e){ console.error('[Supabase] deleteEvent error:', e); }
+  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
+  if(!sb) return;
+  try {
+    const {error}=await sb.from('events').delete().eq('id',id);
+    if(error){ console.error('[Supabase] deleteEvent error:', error); showToast('⚠️ Suppression non synchronisée avec le serveur'); }
+  } catch(e){ console.error('[Supabase] deleteEvent error:', e); showToast('⚠️ Suppression non synchronisée avec le serveur'); }
 }
 
 
@@ -1273,7 +1300,7 @@ function handleRecurrence(task){
   const clone={...task,id:Date.now(),status:'todo',due:newDue,myjour:false};
   tasks.push(clone);
   addNotif('🔁',`Tâche récurrente créée`,`${task.title} → ${fmtFull(newDue)}`,'info');
-  save();
+  save(clone);
 }
 
 // ── NOTIFICATIONS ──
@@ -1322,8 +1349,13 @@ async function clearAllNotifs(){
   saveNotifs();
   updateNotifDot();
   toggleNotifPanel();toggleNotifPanel(); // re-render le panneau vide
-  const sb=getSupabase();
-  if(sb){ try{ await sb.from('notifications').delete().neq('id','00000000-0000-0000-0000-000000000000'); }catch(e){console.error('[Supabase] clearNotifs error:',e);} }
+  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); }
+  if(sb){
+    try{
+      const {error}=await sb.from('notifications').delete().neq('id','00000000-0000-0000-0000-000000000000');
+      if(error) console.error('[Supabase] clearNotifs error:',error);
+    }catch(e){console.error('[Supabase] clearNotifs error:',e);}
+  }
   showToast('🗑 Notifications effacées');
 }
 
@@ -1385,8 +1417,39 @@ async function upsertCategory(oldName,newName,icon,position){
 async function deleteCategoryRemote(name){
   let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
   if(!sb) return;
-  try { await sb.from('categories').delete().eq('name',name); }
+  try {
+    const {error}=await sb.from('categories').delete().eq('name',name);
+    if(error) console.error('[Supabase] deleteCategory error:',error);
+  }
   catch(e){ console.error('[Supabase] deleteCategory error:',e); }
+}
+
+// ── MODÈLES : persistance Supabase ──
+// (symétrique à upsertCategory/deleteCategoryRemote ci-dessus — avant cette
+// correction, les modèles étaient lus depuis Supabase dans syncAll() mais
+// jamais réécrits : un modèle créé ou supprimé localement était perdu au
+// prochain rechargement/synchro.)
+async function upsertTemplate(t){
+  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
+  if(!sb) return;
+  try {
+    const payload={ title:t.title, category:t.cat||'Divers', priority:t.prio||'moyenne', time_est:parseFloat(t.time)||1, recurrence:t.recur||'', comments:t.comments||'' };
+    if(t.id && typeof t.id==='string' && t.id.includes('-')) payload.id=t.id;
+    const {data,error}=await sb.from('templates').upsert(payload).select();
+    if(error){ console.error('[Supabase] upsertTemplate error:', error); return; }
+    if(data && data[0] && !(t.id && typeof t.id==='string' && t.id.includes('-'))){
+      const idx=templates.findIndex(x=>x.id===t.id);
+      if(idx>=0){ templates[idx].id=data[0].id; saveTpls(); }
+    }
+  } catch(e){ console.error('[Supabase] upsertTemplate error:', e); }
+}
+async function deleteTemplateRemote(id){
+  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return; }
+  if(!sb) return;
+  try {
+    const {error}=await sb.from('templates').delete().eq('id',id);
+    if(error) console.error('[Supabase] deleteTemplate error:', error);
+  } catch(e){ console.error('[Supabase] deleteTemplate error:', e); }
 }
 
 function openCatModal(name){
@@ -1461,16 +1524,21 @@ function renderTplList(){
 function useTemplate(id){
   const tpl=templates.find(t=>t.id===id);if(!tpl)return;
   const newTask={id:Date.now(),title:tpl.title,due:todayStr(),time:tpl.time,cat:tpl.cat,prio:tpl.prio,status:'todo',resp:APP_CONFIG.userName,comments:tpl.comments||'',starred:false,myjour:false,recur:tpl.recur||''};
-  tasks.unshift(newTask);save();closeTplModal();renderMain();updateCounts();
+  tasks.unshift(newTask);save(newTask);closeTplModal();renderMain();updateCounts();
   showToast(`✅ Tâche créée depuis le modèle « ${tpl.title} »`);
   setTimeout(()=>selectTask(newTask.id),60);
 }
-function deleteTpl(id){templates=templates.filter(t=>t.id!==id);saveTpls();renderTplList();}
+function deleteTpl(id){
+  if(!confirm('Supprimer ce modèle ?'))return;
+  templates=templates.filter(t=>t.id!==id);saveTpls();renderTplList();
+  if(APP_CONFIG.useSupabase) deleteTemplateRemote(id);
+}
 function saveAsTemplate(){
   if(!selectedId)return;
   const t=tasks.find(x=>String(x.id)===String(selectedId));if(!t)return;
   const tpl={id:'u'+Date.now(),title:t.title,cat:t.cat,prio:t.prio,time:t.time,recur:t.recur||'',comments:t.comments||''};
   templates.push(tpl);saveTpls();
+  if(APP_CONFIG.useSupabase) upsertTemplate(tpl);
   showToast(`💾 Modèle « ${t.title} » sauvegardé`);
 }
 
@@ -1757,7 +1825,8 @@ function renderPlanning(el){
     // Surligne le titre si recherche active
     function hlPlan(text){
       if(!q) return esc(text);
-      // replaced by index-based highlight below
+      const qEsc=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      return esc(text).replace(new RegExp('('+qEsc+')','gi'),'<mark style="background:rgba(79,142,247,.35);color:var(--accent);border-radius:2px">$1</mark>');
     }
 
     const cardsToShow=q?filteredTasks:dayTasks;
@@ -1851,9 +1920,9 @@ function planDrop(e,targetDate){
 // ── PLANNING DU JOUR ──
 function renderPlanningJour(el){
   const mjTasks=tasks.filter(t=>t.status!=='done'&&t.myjour).sort((a,b)=>calcScore(b)-calcScore(a));
-  const placedIds=new Set(Object.values(scheduleSlots).flat());
-  const unscheduled=mjTasks.filter(t=>!placedIds.has(t.id));
-  const totalPlacedH=mjTasks.filter(t=>placedIds.has(t.id)).reduce((a,b)=>a+(b.time||1),0);
+  const placedIds=new Set(Object.values(scheduleSlots).flat().map(String));
+  const unscheduled=mjTasks.filter(t=>!placedIds.has(String(t.id)));
+  const totalPlacedH=mjTasks.filter(t=>placedIds.has(String(t.id))).reduce((a,b)=>a+(b.time||1),0);
   const totalH=mjTasks.reduce((a,b)=>a+(b.time||1),0);
   const planCls={critique:'pc',haute:'ph',moyenne:'pm',faible:'pl'};
 
@@ -1871,8 +1940,8 @@ function renderPlanningJour(el){
   </div>`).join('');
 
   const timelineHTML=hours.map(h=>{
-    const slotTasks=(scheduleSlots[h]||[]).map(id=>tasks.find(x=>x.id===id)).filter(Boolean);
-    const placedCards=slotTasks.map(t=>`<div class="pj-placed-task ${planCls[t.prio]||''} ${t.id===selectedId?'selected':''}"
+    const slotTasks=(scheduleSlots[h]||[]).map(id=>tasks.find(x=>String(x.id)===String(id))).filter(Boolean);
+    const placedCards=slotTasks.map(t=>`<div class="pj-placed-task ${planCls[t.prio]||''} ${String(t.id)===String(selectedId)?'selected':''}"
       draggable="true" data-id="${t.id}"
       data-tid="${t.id}" ondragstart="pjDragStart(event,this.dataset.tid,'slot',${h})"
       ondragend="pjDragEnd(event)"
@@ -1936,14 +2005,14 @@ function pjDragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-ov
 function pjDragLeave(e){if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove('drag-over')}
 function pjDrop(e,hour){
   e.preventDefault();e.currentTarget.classList.remove('drag-over');
-  const id=pjDragData.id||parseInt(e.dataTransfer.getData('text/plain'));if(!id)return;
-  const t=tasks.find(x=>x.id===id);if(!t)return;
+  const id=pjDragData.id||e.dataTransfer.getData('text/plain');if(!id)return;
+  const t=tasks.find(x=>String(x.id)===String(id));if(!t)return;
   // remove from previous slot if any
   if(pjDragData.fromSlot!==null){
     scheduleSlots[pjDragData.fromSlot]=(scheduleSlots[pjDragData.fromSlot]||[]).filter(x=>String(x)!==String(id));
   }
   if(!scheduleSlots[hour])scheduleSlots[hour]=[];
-  if(!scheduleSlots[hour].includes(id))scheduleSlots[hour].push(id);
+  if(!scheduleSlots[hour].some(x=>String(x)===String(id)))scheduleSlots[hour].push(String(id));
   saveSchedule();
   showToast(`⏰ ${t.title} → ${String(hour).padStart(2,'0')}h00`);
   renderMain();
@@ -2355,7 +2424,7 @@ function aiTaskCards(list){
 }
 function addToMJFromAI(id,btn){
   const t=tasks.find(x=>String(x.id)===String(id));if(!t)return;
-  t.myjour=true;save();updateCounts();
+  t.myjour=true;save(t);updateCounts();
   btn.className='ai-task-mj-btn on';btn.textContent='☀️ Ajouté';
   const el=document.getElementById('cnt-myjour');if(el)el.textContent=tasks.filter(t=>t.status!=='done'&&t.myjour).length;
 }
@@ -3003,7 +3072,8 @@ async function requestNotifPermission(){
 }
 
 async function saveSubscription(sub){
-  const sb=getSupabase(); if(!sb || !CURRENT_USER) return false;
+  let sb; try{ sb=getSupabase(); }catch(e){ console.error('[Supabase] client indisponible:',e); return false; }
+  if(!sb || !CURRENT_USER) return false;
   const j=sub.toJSON();
   if(!j.endpoint || !j.keys || !j.keys.p256dh || !j.keys.auth){
     console.error('[Push] Abonnement incomplet:', j);
