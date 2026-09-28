@@ -590,6 +590,7 @@ select option{background:#1C2130;color:#EDF0F7}
   <button id="mobile-menu-btn" onclick="toggleMobileMenu()" style="display:none;background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0 4px;line-height:1">☰</button>
   <div class="topbar-logo"><img src="icons/icon-192.png" alt="Logo"></div>
   <span class="topbar-title">Asso Manager</span>
+  <span id="sync-indicator" style="display:none;font-size:11px;color:var(--text-muted);white-space:nowrap">⏳ Synchronisation…</span>
   <div class="topbar-sep"></div>
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
@@ -691,7 +692,7 @@ select option{background:#1C2130;color:#EDF0F7}
   <div class="detail-hdr">
     <div class="task-circle" id="detail-circle" onclick="toggleDetailDone()"></div>
     <input class="detail-title-inp" id="detail-title-inp" type="text" onblur="updateDetail('title',this.value)">
-    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <button class="detail-close" onclick="closeDetail()" title="Fermer">✕</button>
   </div>
   <div class="detail-body">
     <div class="detail-sec">
@@ -1070,10 +1071,11 @@ let isSyncing=false;
 async function syncAll(){
   if(isSyncing) return;
   isSyncing=true;
+  const _si=document.getElementById('sync-indicator');if(_si)_si.style.display='inline';
   let sb;
   try { sb = getSupabase(); }
   catch(e){ console.error('[Supabase] Client init error:', e); }
-  if(!sb){ renderMain(); updateCounts(); renderSidebarCats(); isSyncing=false; return; }
+  if(!sb){ renderMain(); updateCounts(); renderSidebarCats(); isSyncing=false; if(_si)_si.style.display='none'; return; }
   try {
     // Tâches
     const {data:tdata, error:te} = await sb.from('tasks').select('*').order('created_at',{ascending:false});
@@ -1103,6 +1105,7 @@ async function syncAll(){
     showToast('⚠️ Connexion au serveur impossible — données locales affichées');
   } finally {
     isSyncing=false;
+    if(_si)_si.style.display='none';
     // Toujours afficher l'interface, même si la synchro a échoué
     renderMain(); updateCounts(); renderSidebarCats();
     subscribeRealtime();
@@ -1326,7 +1329,7 @@ function toggleNotifPanel(){
       <div class="notif-panel-hdr">
         <span class="notif-panel-title">Notifications</span>
         ${notifications.length?'<button class="notif-panel-clear" onclick="clearAllNotifs()" title="Tout effacer">🗑 Tout effacer</button>':''}
-        <button class="notif-panel-close" onclick="toggleNotifPanel()">✕</button>
+        <button class="notif-panel-close" onclick="toggleNotifPanel()" title="Fermer">✕</button>
       </div>
       <div class="notif-list">${notifications.length?notifications.map(n=>`
         <div class="notif-item ${n.read?'':'unread'}">
@@ -1486,6 +1489,7 @@ function saveCat(){
   if(APP_CONFIG.useSupabase) renamedTasks.forEach(t=>upsertTask(t));
   const sel=document.getElementById('detail-cat');
   if(sel&&selectedId){const t=tasks.find(x=>x.id===selectedId);sel.innerHTML=catOpts(t?t.cat:'')}
+  showToast(oldName?'💾 Catégorie enregistrée':'✅ Catégorie créée');
 }
 function deleteCat(){
   if(!editingCat)return;
@@ -1499,6 +1503,7 @@ function deleteCat(){
   renderSidebarCats();renderMain();updateCounts();
   deleteCategoryRemote(editingCat);
   if(APP_CONFIG.useSupabase) reassigned.forEach(t=>upsertTask(t));
+  showToast('🗑 Catégorie supprimée');
 }
 
 // ── TEMPLATE MODAL ──
@@ -1517,7 +1522,7 @@ function renderTplList(){
     </div>
     <div style="display:flex;flex-direction:column;gap:4px">
       <button class="tpl-use-btn" onclick="useTemplate('${t.id}')">Créer</button>
-      <button class="tpl-use-btn" style="background:var(--surface3);color:var(--text-secondary);font-size:10px" onclick="deleteTpl('${t.id}')">✕</button>
+      <button class="tpl-use-btn" style="background:var(--surface3);color:var(--text-secondary);font-size:10px" onclick="deleteTpl('${t.id}')" title="Supprimer ce modèle">✕</button>
     </div>
   </div>`).join('')}</div>`;
 }
@@ -1532,6 +1537,7 @@ function deleteTpl(id){
   if(!confirm('Supprimer ce modèle ?'))return;
   templates=templates.filter(t=>t.id!==id);saveTpls();renderTplList();
   if(APP_CONFIG.useSupabase) deleteTemplateRemote(id);
+  showToast('🗑 Modèle supprimé');
 }
 function saveAsTemplate(){
   if(!selectedId)return;
@@ -1593,8 +1599,8 @@ function taskHTML(t){
     <div class="task-right">
       ${t.resp?`<span class="task-due task-resp" style="font-size:11px">👤 ${t.resp}</span>`:''}
       ${t.status!=='done'?`<div class="score-badge ${scCls(s)}">${s}</div>`:''}
-      <button class="mj-btn ${t.myjour?'mj-active':''}" data-tid="${t.id}" onclick="event.stopPropagation();toggleMJ(this.dataset.tid)">${t.myjour?'☀️':'☀'}</button>
-      <button class="star-btn ${t.starred?'starred':''}" data-tid="${t.id}" onclick="event.stopPropagation();toggleStar(this.dataset.tid)">★</button>
+      <button class="mj-btn ${t.myjour?'mj-active':''}" data-tid="${t.id}" onclick="event.stopPropagation();toggleMJ(this.dataset.tid)" title="${t.myjour?'Retirer de Ma journée':'Ajouter à Ma journée'}">${t.myjour?'☀️':'☀'}</button>
+      <button class="star-btn ${t.starred?'starred':''}" data-tid="${t.id}" onclick="event.stopPropagation();toggleStar(this.dataset.tid)" title="${t.starred?'Retirer des favoris':'Marquer comme favori'}">★</button>
     </div>
   </div>`;
 }
@@ -1651,7 +1657,7 @@ function renderMain(){
       <div class="main-header-top"><div><div class="main-title">${title}</div><div class="main-subtitle">${sub}</div></div>
       <div class="main-actions">
         <button class="btn-icon" onclick="cycleSort()" title="Trier">⇅</button>
-        <button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)">✦</button>
+        <button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)" title="Assistant IA">✦</button>
       </div></div>
     </div>
     ${metricsH}${bannerH}${filterH}${addH}
@@ -1869,7 +1875,7 @@ function renderPlanning(el){
         <div class="main-title">Vue planning</div>
         <div class="main-subtitle">${isTouchDevice()?'Appuyez sur une tâche pour la modifier':'Glissez-déposez les tâches entre journées · Cliquez pour modifier'}</div>
       </div>
-      <div class="main-actions"><button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)">✦</button></div></div>
+      <div class="main-actions"><button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)" title="Assistant IA">✦</button></div></div>
     </div>
     <div class="plan-nav">
       <button class="plan-nav-btn" onclick="planOffset--;renderMain()">◀ Semaine préc.</button>
@@ -2063,7 +2069,7 @@ function renderKanban(el){
           <span class="${chipCls(t.prio)}">${prioLbl(t.prio)}</span>
           <span class="chip chip-cat">${catIcon(t.cat)} ${t.cat}</span>
           ${t.time?`<span class="task-due">⏱ ${t.time}h</span>`:''}
-          <button class="mj-btn ${t.myjour?'mj-active':''}" style="margin-left:auto" data-tid="${t.id}" onclick="event.stopPropagation();toggleMJ(this.dataset.tid)">${t.myjour?'☀️':'☀'}</button>
+          <button class="mj-btn ${t.myjour?'mj-active':''}" style="margin-left:auto" data-tid="${t.id}" onclick="event.stopPropagation();toggleMJ(this.dataset.tid)" title="${t.myjour?'Retirer de Ma journée':'Ajouter à Ma journée'}">${t.myjour?'☀️':'☀'}</button>
         </div>
         <div class="kb-card-due ${ov?'overdue':dl<=1?'soon':''}">${daysLeft(t.due)<0?`⚠ Retard ${Math.abs(daysLeft(t.due))}j`:dl===0?'📅 Aujourd\'hui':dl===1?'📅 Demain':fmtD(t.due)}</div>
       </div>`;}).join('');
@@ -2088,7 +2094,7 @@ function renderKanban(el){
         <div class="main-subtitle">${isTouchDevice()?'Tâches de Ma journée · Appuyez pour ouvrir une tâche':'Tâches de Ma journée · Glissez entre colonnes pour changer le statut'}</div>
       </div>
       <div class="main-actions">
-        <button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)">✦</button>
+        <button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)" title="Assistant IA">✦</button>
       </div></div>
     </div>
     <div style="padding:0 22px 8px;flex-shrink:0">
@@ -2158,7 +2164,7 @@ function renderMonthView(el){
         <div class="main-title">Vue mensuelle</div>
         <div class="main-subtitle">Tâches du mois regroupées par catégorie</div>
       </div>
-      <div class="main-actions"><button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)">✦</button></div></div>
+      <div class="main-actions"><button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)" title="Assistant IA">✦</button></div></div>
     </div>
     <div class="plan-nav">
       <button class="plan-nav-btn" onclick="monthOffset--;renderMain()">◀ Mois préc.</button>
@@ -2221,7 +2227,7 @@ function renderByCategory(el){
         <div class="main-title">Vue par catégorie</div>
         <div class="main-subtitle">${isTouchDevice()?'Appuyez sur une tâche pour changer sa catégorie':'Glissez une tâche vers une autre catégorie pour la reclasser'}</div>
       </div>
-      <div class="main-actions"><button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)">✦</button></div></div>
+      <div class="main-actions"><button class="btn-icon" onclick="setView('ai',null)" style="color:var(--purple)" title="Assistant IA">✦</button></div></div>
     </div>
     <div class="filter-bar">
       ${['all','critique','haute','moyenne','faible'].map(f=>`<button class="filter-chip ${prioFilter===f?'active':''}" onclick="setPF('${f}')">${{all:'Toutes',critique:'Critique',haute:'Haute',moyenne:'Moyenne',faible:'Faible'}[f]}</button>`).join('')}
@@ -2794,6 +2800,7 @@ function deleteTask(){
   if(APP_CONFIG.useSupabase) deleteTaskRemote(selectedId);
   tasks=tasks.filter(x=>String(x.id)!==String(selectedId));
   save();closeDetail();renderMain();updateCounts();
+  showToast('🗑 Tâche supprimée');
 }
 function buildAddTaskBar(){
   const td=todayStr();
@@ -2958,8 +2965,20 @@ function showToast(msg,dur=3200){
 
 // ── KEYBOARD SHORTCUTS ──
 document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    // Ferme en priorité tout modal/panneau ouvert, sinon le panneau de détail
+    const catM=document.getElementById('cat-modal'),tplM=document.getElementById('tpl-modal'),evM=document.getElementById('event-modal');
+    if(catM&&catM.style.display!=='none'){closeCatModal();return;}
+    if(tplM&&tplM.style.display!=='none'){closeTplModal();return;}
+    if(evM&&evM.style.display!=='none'){closeEventModal();return;}
+    if(notifPanelOpen){toggleNotifPanel();return;}
+    const um=document.getElementById('user-menu');
+    if(um&&um.style.display!=='none'){um.style.display='none';return;}
+    closeDetail();
+    return;
+  }
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;
-  if(e.key==='Escape')closeDetail();
+  if(e.key==='/'){const s=document.getElementById('global-search');if(s){s.focus();e.preventDefault()}}
   if(e.key==='n'||e.key==='N'){const inp=document.getElementById('new-inp');if(inp){inp.focus();e.preventDefault()}}
   if(e.key==='p'||e.key==='P')setView('planning',null);
   if(e.key==='j'||e.key==='J')setView('planningjour',null);
